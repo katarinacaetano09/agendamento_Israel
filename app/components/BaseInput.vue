@@ -20,7 +20,7 @@
       
       <input
         :id="id"
-        :type="type"
+        :type="showPassword ? 'text' : type"
         :value="modelValue"
         :placeholder="placeholder"
         :disabled="disabled"
@@ -30,7 +30,7 @@
           'block w-full rounded-md border-neutral-300 shadow-sm transition-colors',
           'focus:border-primary-500 focus:ring-primary-500 focus:outline-none',
           { 'pl-10': $slots['prefix'] },
-          { 'pr-10': $slots['suffix'] || clearable && modelValue },
+          { 'pr-10': $slots['suffix'] || clearable && modelValue || type === 'password' },
           { 'bg-neutral-100 text-neutral-500 cursor-not-allowed': disabled || readonly },
           { 'border-state-error focus:ring-state-error focus:border-state-error': error },
           sizeClass,
@@ -38,9 +38,21 @@
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       />
       
+      <!-- Botão para mostrar/esconder senha -->
+      <button
+        v-if="type === 'password'"
+        type="button"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-500 hover:text-neutral-700"
+        @click="showPassword = !showPassword"
+        :aria-label="showPassword ? 'Esconder senha' : 'Mostrar senha'"
+      >
+        <EyeIcon v-if="showPassword" class="w-5 h-5" />
+        <EyeSlashIcon v-else class="w-5 h-5" />
+      </button>
+      
       <!-- Botão para limpar -->
       <button
-        v-if="clearable && modelValue"
+        v-else-if="clearable && modelValue"
         type="button"
         class="absolute inset-y-0 right-0 flex items-center pr-3 text-neutral-500 hover:text-state-error"
         @click="$emit('update:modelValue', '')"
@@ -66,8 +78,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { XMarkIcon } from '@heroicons/vue/24/solid';
+import { computed, ref } from 'vue';
+import { XMarkIcon, EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid';
+
+const showPassword = ref(false);
 
 const props = defineProps({
   id: {
