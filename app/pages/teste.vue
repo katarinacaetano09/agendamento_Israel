@@ -140,6 +140,62 @@
         </div>
       </section>
       
+      <!-- Seção de Toasts -->
+      <section class="mb-12 bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6">
+        <h2 class="text-xl font-semibold mb-6 text-neutral-800 dark:text-white border-b pb-2">
+          Notificações Toast
+        </h2>
+        
+        <div class="space-y-6">
+          <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-200 mb-2">Tipos de Toast</h3>
+          <div class="flex flex-wrap gap-4">
+            <BaseButton 
+              label="Sucesso" 
+              variant="secondary" 
+              @click="showSuccessToast" 
+            />
+            <BaseButton 
+              label="Erro" 
+              variant="outline" 
+              @click="showErrorToast"
+            >
+              <template #icon-left>
+                <ExclamationTriangleIcon class="w-4 h-4 mr-2" />
+              </template>
+            </BaseButton>
+            <BaseButton 
+              label="Informação" 
+              variant="primary" 
+              @click="showInfoToast"
+            />
+            <BaseButton 
+              label="Aviso" 
+              variant="neutral" 
+              @click="showWarningToast"
+            />
+          </div>
+          
+          <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-200 mb-2 mt-6">Opções de Toast</h3>
+          <div class="flex flex-wrap gap-4">
+            <BaseButton 
+              label="Com duração longa" 
+              variant="ghost" 
+              @click="showLongToast"
+            />
+            <BaseButton 
+              label="Com botão de ação" 
+              variant="outline" 
+              @click="showToastWithAction"
+            />
+            <BaseButton 
+              label="Sem botão fechar" 
+              variant="outline" 
+              @click="showToastNoClose"
+            />
+          </div>
+        </div>
+      </section>
+
       <!-- Combinação de Componentes -->
       <section class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm p-6">
         <h2 class="text-xl font-semibold mb-6 text-neutral-800 dark:text-white border-b pb-2">
@@ -204,8 +260,59 @@ import {
   UserIcon, 
   LockClosedIcon,
   UserCircleIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/vue/24/outline';
+
+// Importando o sistema de toast
+import { useToast } from 'vue-toastification';
+const toast = useToast();
+
+// Métodos para demonstração dos toasts
+const showSuccessToast = () => {
+  toast.success("Operação realizada com sucesso!", {
+    timeout: 3000
+  });
+};
+
+const showErrorToast = () => {
+  toast.error("Ocorreu um erro ao processar a solicitação!", {
+    timeout: 4000
+  });
+};
+
+const showInfoToast = () => {
+  toast.info("Esta é uma informação importante.", {
+    timeout: 3000
+  });
+};
+
+const showWarningToast = () => {
+  toast.warning("Atenção! Esta ação não pode ser desfeita.", {
+    timeout: 4000
+  });
+};
+
+const showLongToast = () => {
+  toast.info("Este toast permanecerá visível por um período mais longo (8 segundos).", {
+    timeout: 8000
+  });
+};
+
+const showToastWithAction = () => {
+  toast.info(
+    "Clique para realizar uma ação",
+    {
+      onClick: () => alert("Você clicou no toast!")
+    }
+  );
+};
+
+const showToastNoClose = () => {
+  toast.warning("Este toast não possui botão de fechar", {
+    closeButton: false
+  });
+};
 
 // Configuração da página
 useHead({
