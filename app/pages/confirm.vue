@@ -50,6 +50,11 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'nuxt/app';
 
+// Definir layout para esta página - remover o layout padrão na página de confirmação
+definePageMeta({
+  layout: false
+});
+
 const supabase = useSupabaseClient();
 const user = useSupabaseUser();
 const router = useRouter();
