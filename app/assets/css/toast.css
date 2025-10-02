@@ -1,0 +1,32 @@
+/* Estilização customizada para os toasts */
+
+.Vue-Toastification__toast {
+  font-family: 'Inter', sans-serif;
+  border-radius: 0.375rem;
+}
+
+.toast-success {
+  background-color: var(--color-secondary-400, #34D399) !important;
+}
+
+.toast-error {
+  background-color: var(--color-state-error, #EF4444) !important;
+}
+
+.toast-warning {
+  background-color: var(--color-state-warning, #F59E0B) !important;
+}
+
+.toast-info {
+  background-color: var(--color-primary-500, #4F6BFF) !important;
+}
+
+/* Estilização do ícone e do botão de fechar */
+.Vue-Toastification__close-button {
+  color: white;
+  opacity: 0.8;
+}
+
+.Vue-Toastification__close-button:hover {
+  opacity: 1;
+}
