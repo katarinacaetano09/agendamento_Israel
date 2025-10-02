@@ -1,6 +1,14 @@
 <template>
   <div class="min-h-screen bg-white flex">
-    <!-- Coluna da esquerda -->
+    <!-- Coluna da esquerda - Formulário de login -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div class="max-w-md w-full">
+        <!-- O componente de formulário de login será incorporado aqui -->
+        <LoginForm />
+      </div>
+    </div>
+    
+    <!-- Coluna da direita -->
     <div class="hidden lg:flex lg:w-1/2 bg-primary-50 justify-center items-center p-12">
       <div class="max-w-md text-center">
         <h1 class="text-4xl font-bold text-primary mb-4">Agendamento Fácil</h1>
@@ -14,14 +22,6 @@
             <CalendarIcon class="h-24 w-24 text-primary" />
           </div>
         </div>
-      </div>
-    </div>
-    
-    <!-- Coluna da direita - Formulário de login -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
-      <div class="max-w-md w-full">
-        <!-- O componente de formulário de login será incorporado aqui -->
-        <LoginForm />
       </div>
     </div>
   </div>
