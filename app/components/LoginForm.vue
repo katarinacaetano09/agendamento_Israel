@@ -6,12 +6,14 @@
       Entre com suas credenciais para acessar o sistema de agendamento.
     </p>
     
-    <form @submit.prevent class="space-y-6">
+    <form @submit.prevent="handleLogin" class="space-y-6">
       <BaseInput
+        v-model="email"
         label="Email"
         type="email"
         placeholder="Digite seu email"
         required
+        :error="validationErrors.email"
       >
         <template #prefix>
           <EnvelopeIcon class="w-5 h-5" />
@@ -19,10 +21,12 @@
       </BaseInput>
       
       <BaseInput
+        v-model="password"
         label="Senha"
         type="password"
         placeholder="Digite sua senha"
         required
+        :error="validationErrors.password"
       >
         <template #prefix>
           <LockClosedIcon class="w-5 h-5" />
@@ -54,6 +58,8 @@
           type="submit"
           variant="primary"
           fullWidth
+          :loading="loading"
+          :disabled="loading"
         />
       </div>
       
@@ -69,6 +75,51 @@
 
 <script setup lang="ts">
 import { EnvelopeIcon, LockClosedIcon } from '@heroicons/vue/24/outline';
+import { ref, reactive } from 'vue';
 import BaseInput from './BaseInput.vue';
 import BaseButton from './BaseButton.vue';
+import { useAuth } from '../composables/useAuth';
+
+// Estado do formulário
+const email = ref('');
+const password = ref('');
+const validationErrors = reactive({
+  email: '',
+  password: ''
+});
+
+// Autenticação
+const { login, loading, error } = useAuth();
+
+// Validar campos
+const validateForm = () => {
+  let isValid = true;
+  validationErrors.email = '';
+  validationErrors.password = '';
+  
+  if (!email.value) {
+    validationErrors.email = 'Email é obrigatório';
+    isValid = false;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    validationErrors.email = 'Email inválido';
+    isValid = false;
+  }
+  
+  if (!password.value) {
+    validationErrors.password = 'Senha é obrigatória';
+    isValid = false;
+  } else if (password.value.length < 6) {
+    validationErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+    isValid = false;
+  }
+  
+  return isValid;
+};
+
+// Handler do submit
+const handleLogin = async () => {
+  if (validateForm()) {
+    await login(email.value, password.value);
+  }
+};
 </script>
