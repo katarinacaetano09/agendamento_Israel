@@ -21,6 +21,7 @@
       </BaseInput>
       
       <BaseInput
+        v-if="!useOtpLogin"
         v-model="password"
         label="Senha"
         type="password"
@@ -39,22 +40,27 @@
             id="remember-me" 
             type="checkbox" 
             class="h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+            v-if="!useOtpLogin"
           />
-          <label for="remember-me" class="ml-2 block text-sm text-neutral-600">
+          <label v-if="!useOtpLogin" for="remember-me" class="ml-2 block text-sm text-neutral-600">
             Lembrar-me
           </label>
         </div>
         
         <div class="text-sm">
-          <a href="#" class="font-medium text-primary hover:text-primary-600">
-            Esqueceu a senha?
-          </a>
+          <button
+            type="button"
+            class="font-medium text-primary hover:text-primary-600"
+            @click="useOtpLogin = !useOtpLogin"
+          >
+            {{ useOtpLogin ? 'Usar senha para login' : 'Login sem senha' }}
+          </button>
         </div>
       </div>
       
       <div class="pt-2">
         <BaseButton 
-          label="Entrar"
+          :label="useOtpLogin ? 'Enviar link de acesso' : 'Entrar'"
           type="submit"
           variant="primary"
           fullWidth
@@ -87,9 +93,10 @@ const validationErrors = reactive({
   email: '',
   password: ''
 });
+const useOtpLogin = ref(false);
 
 // Autenticação
-const { login, loading, error } = useAuth();
+const { login, loginWithOtp, loading, error } = useAuth();
 
 // Validar campos
 const validateForm = () => {
@@ -118,8 +125,44 @@ const validateForm = () => {
 
 // Handler do submit
 const handleLogin = async () => {
-  if (validateForm()) {
-    await login(email.value, password.value);
+  if (!validateEmail()) return;
+  
+  if (useOtpLogin.value) {
+    await loginWithOtp(email.value);
+  } else {
+    if (validatePassword()) {
+      await login(email.value, password.value);
+    }
   }
+};
+
+// Validar apenas email
+const validateEmail = () => {
+  validationErrors.email = '';
+  
+  if (!email.value) {
+    validationErrors.email = 'Email é obrigatório';
+    return false;
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    validationErrors.email = 'Email inválido';
+    return false;
+  }
+  
+  return true;
+};
+
+// Validar apenas senha
+const validatePassword = () => {
+  validationErrors.password = '';
+  
+  if (!password.value) {
+    validationErrors.password = 'Senha é obrigatória';
+    return false;
+  } else if (password.value.length < 6) {
+    validationErrors.password = 'Senha deve ter pelo menos 6 caracteres';
+    return false;
+  }
+  
+  return true;
 };
 </script>

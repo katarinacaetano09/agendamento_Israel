@@ -12,6 +12,38 @@ export const useAuth = () => {
   const error = ref<string | null>(null);
 
   /**
+   * Login com link mágico (OTP)
+   */
+  const loginWithOtp = async (email: string) => {
+    try {
+      loading.value = true;
+      error.value = null;
+
+      const { data, error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + '/confirm',
+        }
+      });
+
+      if (otpError) {
+        error.value = otpError.message;
+        toast.error('Falha ao enviar o link de login. Verifique seu email.');
+        return false;
+      }
+
+      toast.success('Link de acesso enviado para seu email!');
+      return true;
+    } catch (err: any) {
+      error.value = err.message || 'Ocorreu um erro ao enviar o link de acesso';
+      toast.error('Ocorreu um erro inesperado. Tente novamente.');
+      return false;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /**
    * Login com e-mail e senha
    */
   const login = async (email: string, password: string) => {
@@ -85,6 +117,7 @@ export const useAuth = () => {
     loading,
     error,
     login,
+    loginWithOtp,
     logout,
     isAuthenticated
   };
