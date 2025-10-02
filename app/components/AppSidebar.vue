@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar h-screen flex flex-col bg-neutral-800 text-white w-64 shadow-lg">
+  <div class="sidebar flex flex-col bg-neutral-800 text-white w-64 shadow-lg h-screen overflow-y-auto">
     <!-- Cabeçalho da Sidebar -->
     <div class="sidebar-header p-4 border-b border-neutral-700">
       <div class="flex items-center space-x-3">

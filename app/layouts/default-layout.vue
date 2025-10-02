@@ -1,10 +1,10 @@
 <template>
-  <div class="flex min-h-screen bg-neutral-100">
+  <div class="flex h-screen bg-neutral-100 overflow-hidden">
     <!-- Sidebar -->
     <AppSidebar v-if="isAuthenticated" />
     
     <!-- Conteúdo principal -->
-    <div class="flex flex-col flex-grow">
+    <div class="flex flex-col flex-grow overflow-auto">
       
       <!-- Conteúdo principal -->
       <main class="flex-grow p-6">
