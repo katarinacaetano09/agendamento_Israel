@@ -48,9 +48,70 @@
           </NuxtLink>
         </li>
         <li>
-          <button 
-            class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 w-full text-left relative"
-            :class="isCollapsed ? 'justify-center' : ''"
+          <NuxtLink 
+            to="/agendamentos" 
+            class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
+            :class="[
+              { 'bg-neutral-700': $route.path === '/agendamentos' },
+              isCollapsed ? 'justify-center' : ''
+            ]"
+          >
+            <CalendarIcon class="w-6 h-6 flex-shrink-0" />
+            <span v-if="!isCollapsed" class="ml-3 transition-all duration-300">Agendamentos</span>
+            
+            <!-- Tooltip para modo colapsado -->
+            <div v-if="isCollapsed" 
+                 class="absolute left-full ml-3 px-2 py-1 bg-neutral-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              Agendamentos
+            </div>
+          </NuxtLink>
+        </li>
+        <li>
+          <NuxtLink 
+            to="/clientes" 
+            class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
+            :class="[
+              { 'bg-neutral-700': $route.path === '/clientes' },
+              isCollapsed ? 'justify-center' : ''
+            ]"
+          >
+            <UsersIcon class="w-6 h-6 flex-shrink-0" />
+            <span v-if="!isCollapsed" class="ml-3 transition-all duration-300">Clientes</span>
+            
+            <!-- Tooltip para modo colapsado -->
+            <div v-if="isCollapsed" 
+                 class="absolute left-full ml-3 px-2 py-1 bg-neutral-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              Clientes
+            </div>
+          </NuxtLink>
+        </li>
+        <li>
+          <NuxtLink 
+            to="/profissionais" 
+            class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
+            :class="[
+              { 'bg-neutral-700': $route.path === '/profissionais' },
+              isCollapsed ? 'justify-center' : ''
+            ]"
+          >
+            <UserIcon class="w-6 h-6 flex-shrink-0" />
+            <span v-if="!isCollapsed" class="ml-3 transition-all duration-300">Profissionais</span>
+            
+            <!-- Tooltip para modo colapsado -->
+            <div v-if="isCollapsed" 
+                 class="absolute left-full ml-3 px-2 py-1 bg-neutral-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              Profissionais
+            </div>
+          </NuxtLink>
+        </li>
+        <li>
+          <NuxtLink 
+            to="/especialidades" 
+            class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
+            :class="[
+              { 'bg-neutral-700': $route.path === '/especialidades' },
+              isCollapsed ? 'justify-center' : ''
+            ]"
           >
             <UserGroupIcon class="w-6 h-6 flex-shrink-0" />
             <span v-if="!isCollapsed" class="ml-3 transition-all duration-300">Especialidades</span>
@@ -60,7 +121,7 @@
                  class="absolute left-full ml-3 px-2 py-1 bg-neutral-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
               Especialidades
             </div>
-          </button>
+          </NuxtLink>
         </li>
       </ul>
     </nav>
@@ -79,6 +140,9 @@ import {
   HomeIcon, 
   CalendarDaysIcon,
   UserGroupIcon,
+  CalendarIcon,
+  UsersIcon,
+  UserIcon,
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/vue/24/outline';
