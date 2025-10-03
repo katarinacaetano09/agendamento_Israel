@@ -3,19 +3,29 @@
     <!-- Botão que abre o dropdown -->
     <button 
       @click="toggleDropdown"
-      class="flex items-center space-x-3 w-full p-3 rounded-lg hover:bg-neutral-700 transition-colors"
-      :class="{ 'bg-neutral-700': isOpen }"
+      class="group flex items-center w-full p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
+      :class="[
+        { 'bg-neutral-700': isOpen },
+        props.isCollapsed ? 'justify-center' : ''
+      ]"
     >
-      <Cog6ToothIcon class="w-5 h-5" />
-      <span>Configurações</span>
-      <ChevronUpIcon v-if="isOpen" class="w-4 h-4 ml-auto transition-transform" />
-      <ChevronDownIcon v-else class="w-4 h-4 ml-auto transition-transform" />
+      <Cog6ToothIcon class="w-6 h-6 flex-shrink-0" />
+      <span v-if="!props.isCollapsed" class="ml-3 transition-all duration-300">Configurações</span>
+      <ChevronUpIcon v-if="isOpen && !props.isCollapsed" class="w-4 h-4 ml-auto transition-transform" />
+      <ChevronDownIcon v-else-if="!props.isCollapsed" class="w-4 h-4 ml-auto transition-transform" />
+      
+      <!-- Tooltip para modo colapsado -->
+      <div v-if="props.isCollapsed" 
+           class="absolute left-full ml-3 px-2 py-1 bg-neutral-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+        Configurações
+      </div>
     </button>
 
     <!-- Menu Dropdown -->
     <div 
       v-if="isOpen"
-      class="absolute bottom-full left-0 right-0 mb-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 overflow-hidden"
+      class="absolute bottom-full mb-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 overflow-hidden min-w-max"
+      :class="props.isCollapsed ? 'left-full ml-2' : 'left-0 right-0'"
     >
       <ul class="py-2">
         <li>
@@ -50,6 +60,15 @@ import {
   ArrowLeftOnRectangleIcon 
 } from '@heroicons/vue/24/outline';
 import { useAuth } from '../composables/useAuth';
+
+// Props
+interface Props {
+  isCollapsed?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isCollapsed: false
+});
 
 // Estado do dropdown
 const isOpen = ref(false);
