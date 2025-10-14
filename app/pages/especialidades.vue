@@ -60,11 +60,18 @@
               :disabled="!isAdmin"
               title="Deletar"
               class="p-1 text-red-500 hover:text-red-700 ml-2"
+              @click="openDeleteModal(esp.id, esp.especialidade)"
             >
               <template #icon-left>
                 <HeroiconsTrash class="w-5 h-5" />
               </template>
             </BaseButton>
+  <ConfirmDeleteModal
+    :show="showDeleteModal"
+    :nome="deleteNome"
+    @cancel="closeDeleteModal"
+    @confirm="onConfirmDelete"
+  />
           </td>
         </tr>
         <tr v-if="!especialidades || especialidades.length === 0">
@@ -83,12 +90,43 @@
 import { ref, onMounted, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '../stores/user'
-import { useUserProfissionais } from '../composables/useUserProfissionais'
+import { useProfissionais } from '../composables/useProfissionais'
 import { PencilSquareIcon as HeroiconsPencilSquare, TrashIcon as HeroiconsTrash, PlusIcon as HeroiconsPlus } from '@heroicons/vue/24/outline'
 import BaseButton from '~/components/BaseButton.vue'
 import EspecialidadeModal from '~/components/EspecialidadeModal.vue'
+import ConfirmDeleteModal from '~/components/ConfirmDeleteModal.vue'
 
-const { especialidades, loading, error, fetchEspecialidades } = useUserProfissionais()
+const { especialidades, loading, error, fetchEspecialidades, addEspecialidade, editEspecialidade, deleteEspecialidade } = useProfissionais()
+
+const showDeleteModal = ref(false)
+const deleteId = ref<number|null>(null)
+const deleteNome = ref('')
+
+function openDeleteModal(id: number, nome: string | null) {
+  deleteId.value = id
+  deleteNome.value = nome ?? ''
+  showDeleteModal.value = true
+}
+
+
+function closeDeleteModal() {
+  showDeleteModal.value = false
+  deleteId.value = null
+}
+
+async function onConfirmDelete() {
+  if (deleteId.value !== null) {
+    const result = await deleteEspecialidade(deleteId.value)
+    if (result.success) {
+      await fetchEspecialidades()
+      // Aqui pode exibir um toast de sucesso se desejar
+      closeDeleteModal()
+    } else {
+      // Aqui pode exibir um toast de erro se desejar
+      alert(result.message)
+    }
+  }
+}
 
 // Verifica se o usuário é admin
 const userStore = useUserStore()
@@ -114,15 +152,31 @@ function closeEditModal() {
   editId.value = null
 }
 
-function onSaveEspecialidade(data: any) {
-  // callback para salvar especialidade (implementar depois)
-  showAddModal.value = false
+async function onSaveEspecialidade(data: any) {
+  // Chama a função do composable para adicionar especialidade
+  const result = await addEspecialidade(data.especialidade)
+  if (result.success) {
+    await fetchEspecialidades()
+    // Aqui pode exibir um toast de sucesso se desejar
+    showAddModal.value = false
+  } else {
+    // Aqui pode exibir um toast de erro se desejar
+    alert(result.message)
+  }
 }
 
-function onSaveEditEspecialidade(data: any) {
-  // callback para salvar edição (implementar depois)
-  showEditModal.value = false
-  editId.value = null
+async function onSaveEditEspecialidade(data: any) {
+  // Chama a função do composable para editar especialidade
+  const result = await editEspecialidade(data.id, data.especialidade)
+  if (result.success) {
+    await fetchEspecialidades()
+    // Aqui pode exibir um toast de sucesso se desejar
+    showEditModal.value = false
+    editId.value = null
+  } else {
+    // Aqui pode exibir um toast de erro se desejar
+    alert(result.message)
+  }
 }
 
 onMounted(() => {

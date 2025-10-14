@@ -1,3 +1,9 @@
+// @ts-ignore: Adiciona propriedade global temporária para especialidades
+declare global {
+  interface Window {
+    __ESPECIALIDADES__?: any[]
+  }
+}
 <template>
   <BaseModal :show="show" @cancel="onCancel" @confirm="onConfirm">
     <template #header>
@@ -49,9 +55,18 @@ const especialidadeProxy = computed({
 
 watch(() => props.show, (val) => {
   if (val && props.isEdit && props.id) {
-    // Buscar dados da especialidade para edição (mock)
-    // Substitua por chamada real se necessário
-    especialidade.value = { especialidade: 'Especialidade Exemplo', id: Number(props.id) }
+    // Buscar dados da especialidade para edição
+    // O parent deve passar a especialidade correta via prop ou evento
+    // Aqui tentamos acessar window.__ESPECIALIDADES__ como fallback (não recomendado para produção)
+    let found = null
+    if (typeof window !== 'undefined' && Array.isArray((window as any).__ESPECIALIDADES__)) {
+      found = (window as any).__ESPECIALIDADES__.find((e: any) => e.id === Number(props.id))
+    }
+    if (found) {
+      especialidade.value = { especialidade: found.especialidade, id: found.id }
+    } else {
+      especialidade.value = { especialidade: '', id: Number(props.id) }
+    }
   } else if (val && !props.isEdit) {
     especialidade.value = { especialidade: '' }
   }

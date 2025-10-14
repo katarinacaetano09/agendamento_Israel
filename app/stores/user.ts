@@ -10,16 +10,16 @@ export const useUserStore = defineStore('user', () => {
   const error = ref<string | null>(null)
 
   // Buscar perfil do usuário autenticado
-  async function fetchProfile() {
+  async function fetchProfile(userId?: string) {
     loading.value = true
     error.value = null
     try {
-      // Supabase client via composable Nuxt
       const supabase = useSupabaseClient()
-      const { data, error: err } = await supabase
-        .from('ag_profiles')
-        .select('*')
-        .single()
+      let query = supabase.from('ag_profiles').select('*')
+      if (userId) {
+        query = query.eq('user_id', userId)
+      }
+      const { data, error: err } = await query.single()
       if (err) throw err
       profile.value = data
     } catch (err: any) {
@@ -30,10 +30,21 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  function setProfile(data: UserProfile | null) {
+    profile.value = data
+  }
+
+  function resetProfile() {
+    profile.value = null
+    error.value = null
+  }
+
   return {
     profile,
     loading,
     error,
-    fetchProfile
+    fetchProfile,
+    setProfile,
+    resetProfile
   }
 })
