@@ -82,21 +82,48 @@
       @close="() => showEditModal = false"
       @save="onUpdateProfissional"
     />
+
+    <!-- Modal de confirmação de exclusão -->
+    <ConfirmDeleteModal
+      :show="showDeleteModal"
+      :nome="deleteNome"
+  @cancel="() => showDeleteModal = false"
+      @confirm="onDeleteProfissional"
+    />
   </div>
 </template>
 
 
 <script setup lang="ts">
 
+
 import { ref, computed, onMounted } from 'vue'
 import { useProfissionais } from '~/composables/useProfissionais'
 import { useUserStore } from '~/stores/user'
 import BaseButton from '~/components/BaseButton.vue'
+import ConfirmDeleteModal from '~/components/ConfirmDeleteModal.vue'
 import type { Profissional } from '~/../shared/types/Profissional'
 import type { SimpleProfile } from '~/../shared/types/SimpleProfile'
 import type { Especialidade } from '~/../shared/types/Especialidade'
+import { useToast } from 'vue-toastification'
 
-const { profissionais, fetchProfissionais, fetchSimpleProfiles, fetchEspecialidades, simpleProfiles, especialidades } = useProfissionais()
+const { profissionais, fetchProfissionais, fetchSimpleProfiles, fetchEspecialidades, simpleProfiles, especialidades, addProfissional, editProfissional, deleteProfissional } = useProfissionais()
+// Handler para deletar profissional
+async function onDeleteProfissional() {
+  if (!deleteId.value) {
+    toast.error('ID do profissional não encontrado.')
+    return
+  }
+  const result = await deleteProfissional(Number(deleteId.value))
+  if (result.success) {
+    toast.success(result.message)
+    await fetchProfissionais()
+    showDeleteModal.value = false
+  } else {
+    toast.error(result.message)
+  }
+}
+const toast = useToast()
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.profile?.role === 'admin')
 
@@ -106,11 +133,13 @@ const showEditModal = ref(false)
 const showDeleteModal = ref(false)
 const editProfileId = ref<string | number>('')
 const editEspecialidadeId = ref<string | number>('')
+const editId = ref<string | number>('') // id do profissional
 const deleteId = ref<string | number | null>(null)
 const deleteNome = ref('')
 
 function openAddModal() { showAddModal.value = true }
 function openEditModal(prof: Profissional) {
+  editId.value = prof.profissional_id
   editProfileId.value = prof.profile_id
   editEspecialidadeId.value = prof.especialidade_id
   showEditModal.value = true
@@ -122,13 +151,30 @@ function openDeleteModal(prof: Profissional) {
 }
 
 // Handlers para salvar/adicionar/editar profissional (placeholders)
-function onSaveProfissional(data: { profileId: string | number, especialidadeId: string | number }) {
-  showAddModal.value = false
-  // Aqui você pode chamar a função de adicionar profissional e atualizar a lista
+async function onSaveProfissional(data: { profileId: string | number, especialidadeId: string | number }) {
+  const result = await addProfissional(data.profileId, data.especialidadeId)
+  if (result.success) {
+    toast.success(result.message)
+    await fetchProfissionais()
+    showAddModal.value = false
+  } else {
+    toast.error(result.message)
+  }
 }
-function onUpdateProfissional(data: { profileId: string | number, especialidadeId: string | number }) {
-  showEditModal.value = false
-  // Aqui você pode chamar a função de editar profissional e atualizar a lista
+async function onUpdateProfissional(data: { profileId: string | number, especialidadeId: string | number }) {
+  const profissionalId = editId.value
+  if (!profissionalId) {
+    toast.error('ID do profissional não encontrado.')
+    return
+  }
+  const result = await editProfissional(Number(profissionalId), data.profileId, data.especialidadeId)
+  if (result.success) {
+    toast.success(result.message)
+    await fetchProfissionais()
+    showEditModal.value = false
+  } else {
+    toast.error(result.message)
+  }
 }
 
 onMounted(async () => {
