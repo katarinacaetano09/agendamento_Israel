@@ -20,14 +20,33 @@
     }
     return editData || { success: false, message: 'Erro desconhecido.' }
   }
+
 import type { Especialidade } from '../../shared/types/Especialidade'
 import type { Profissional } from '../../shared/types/Profissional'
+import type { SimpleProfile } from '../../shared/types/SimpleProfile'
 
 export function useProfissionais() {
   const especialidades = ref<Especialidade[] | null>(null)
   const profissionais = ref<Profissional[] | null>(null)
+  const simpleProfiles = ref<SimpleProfile[] | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  // Busca todos os perfis simples (id e nome) para uso de admin
+  async function fetchSimpleProfiles() {
+    loading.value = true
+    error.value = null
+    try {
+      const supabase = useSupabaseClient()
+      const { data, error: err } = await supabase.rpc('ag_get_all_profiles_if_admin')
+      if (err) throw err
+      simpleProfiles.value = data
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao buscar perfis'
+      simpleProfiles.value = null
+    } finally {
+      loading.value = false
+    }
+  }
 
   async function fetchEspecialidades() {
     loading.value = true
@@ -76,10 +95,12 @@ export function useProfissionais() {
   return {
     especialidades,
     profissionais,
+    simpleProfiles,
     loading,
     error,
     fetchEspecialidades,
     fetchProfissionais,
+    fetchSimpleProfiles,
     addEspecialidade,
     editEspecialidade,
     deleteEspecialidade
