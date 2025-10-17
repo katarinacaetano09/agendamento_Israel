@@ -1,8 +1,7 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'nuxt/app';
 import { useToast } from 'vue-toastification';
 import { useUserStore } from '~/stores/user';
-  const userStore = useUserStore();
 
 export const useAuth = () => {
   const supabase = useSupabaseClient();
@@ -65,7 +64,8 @@ export const useAuth = () => {
       }
 
       if (data?.user) {
-        // Buscar perfil correto do usuário autenticado
+        // Buscar perfil correto do usuário autenticado (pegamos a store aqui, com Pinia já inicializado)
+        const userStore = useUserStore();
         await userStore.fetchProfile(data.user.id);
         toast.success('Login realizado com sucesso!');
         // Redireciona para página raiz
@@ -99,7 +99,8 @@ export const useAuth = () => {
         return false;
       }
 
-      userStore.resetProfile();
+  const userStore = useUserStore();
+  userStore.resetProfile();
       toast.success('Logout realizado com sucesso!');
       router.push('/login');
       return true;
