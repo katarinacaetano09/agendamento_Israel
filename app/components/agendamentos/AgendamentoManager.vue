@@ -15,12 +15,17 @@
       <ListaDias :dias="diasSemana" />
     </div>
     <div
-      class="body flex-1 px-8 flex items-center"
+      class="body flex-1 px-8 flex items-start gap-4 mt-2"
       style="min-height: 200px;"
     >
-      <div>
-        <span class="font-semibold text-base text-neutral-800">Corpo – Conteúdo Principal</span><br>
-        <span class="text-xs text-neutral-500">Ocupa todo o espaço restante</span>
+      <ReguaHorarios />
+      <div class="flex-1 flex gap-0 h-full">
+        <ItemAgendamento
+          v-for="(dia, idx) in diasSemana"
+          :key="idx"
+          :data="dia"
+          class="flex-1 min-w-0 border-r border-gray-500 last:border-none"
+        />
       </div>
     </div>
   </div>
@@ -30,6 +35,8 @@
 import AgendamentoSemanaControl from './AgendamentoSemanaControl.vue'
 import ProfissionalInfo from './ProfissionalInfo.vue'
 import ListaDias from './ListaDias.vue'
+import ReguaHorarios from './ReguaHorarios.vue'
+import ItemAgendamento from './ItemAgendamento.vue'
 import BaseButton from '../BaseButton.vue'
 
 import { useAgendamentoStore } from '~/stores/agendamento'
@@ -37,7 +44,7 @@ import { storeToRefs } from 'pinia'
 
 export default {
   name: 'AgendamentoManager',
-  components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, BaseButton },
+  components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, ReguaHorarios, ItemAgendamento, BaseButton },
   setup() {
     const agendamentoStore = useAgendamentoStore()
     const { dataSemana } = storeToRefs(agendamentoStore)
