@@ -15,16 +15,16 @@
       <ListaDias :dias="diasSemana" />
     </div>
     <div
-      class="body flex-1 px-8 flex items-start gap-4 mt-2"
+      class="body flex-1 px-4 flex items-start gap-4 mt-2"
       style="min-height: 200px;"
     >
       <ReguaHorarios />
-      <div class="flex-1 flex gap-0 h-full">
+      <div class="flex-1 flex gap-2 h-full">
         <ItemAgendamento
           v-for="(dia, idx) in diasSemana"
           :key="idx"
           :data="dia"
-          class="flex-1 min-w-0 border-r border-gray-500 last:border-none"
+          class="flex-1 min-w-0"
         />
       </div>
     </div>

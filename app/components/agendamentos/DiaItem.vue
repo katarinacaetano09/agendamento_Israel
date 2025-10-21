@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-full w-full py-2 transition-colors duration-150 cursor-pointer hover:bg-blue-50 hover:shadow-sm rounded">
+  <div class="flex flex-col items-center justify-center h-full w-full py-2 transition-colors duration-150 cursor-pointer bg-gray-200 rounded-t-xl">
     <span class="text-lg font-bold text-neutral-800">{{ diaNumero }}</span>
     <span class="text-xs text-neutral-500 uppercase mt-1">{{ diaSemana }}</span>
   </div>

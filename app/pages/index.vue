@@ -2,12 +2,10 @@
 
 
 <template>
-  <div class="px-8 py-6 max-w-7xl mx-auto min-h-screen flex flex-col">
-    <h1 class="text-3xl font-bold text-neutral-800 dark:text-white">Agendamentos</h1>
-    <div class="flex-1 flex flex-col">
+  <div class="px-8 pt-2 max-w-7xl mx-auto min-h-screen flex flex-col">
+    <div class="flex-1 flex flex-col mt-0">
       <AgendamentoManager class="flex-1" />
     </div>
-    <!-- Saudação ao usuário removida -->
   </div>
 </template>
 
