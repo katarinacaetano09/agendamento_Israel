@@ -2,6 +2,14 @@
 
 <template>
   <div class="agendamento-manager-container w-full mt-4 flex flex-col rounded-xl overflow-hidden" style="height: 100%; min-height: 400px;">
+    <NewAgendamentoModal
+      :show="showNewModal"
+      :profissional="modalProfissional"
+      :datas="diasSemana"
+      @update:show="onModalUpdateShow"
+      @confirm="onModalConfirm"
+      @cancel="onModalCancel"
+    />
     <div
       class="header px-8 flex flex-col justify-between"
     >
@@ -42,6 +50,7 @@ import ListaDias from './ListaDias.vue'
 import ReguaHorarios from './ReguaHorarios.vue'
 import ItemAgendamento from './ItemAgendamento.vue'
 import BaseButton from '../BaseButton.vue'
+import NewAgendamentoModal from './NewAgendamentoModal.vue'
 
 import { useAgendamentoStore } from '~/stores/agendamento'
 import { storeToRefs } from 'pinia'
@@ -58,6 +67,8 @@ export default {
   const { fetchAgendamentosPorProfissionalWeek, invalidateCache } = useAgendamentos()
 
   const semanaSlots = ref<Record<string, Array<any>>>({})
+  const showNewModal = ref(false)
+  const modalProfissional = ref<any>(null)
 
     function formatDate(d: Date) {
       return d.toISOString().slice(0, 10)
@@ -97,6 +108,11 @@ export default {
       semanaSlots.value = map
     }
 
+    function openNovo() {
+      modalProfissional.value = selectedProfissional.value || null
+      showNewModal.value = true
+    }
+
     async function clearCache() {
       const profId = Number(selectedProfissionalId.value)
       if (!profId) {
@@ -126,18 +142,35 @@ export default {
     onMounted(() => {
       loadSemana()
     })
+    function onModalUpdateShow(val: boolean) {
+      showNewModal.value = val
+    }
+
+    function onModalConfirm(payload: any) {
+      console.log('Novo agendamento payload (layout only):', payload)
+      showNewModal.value = false
+    }
+
+    function onModalCancel() {
+      showNewModal.value = false
+    }
+
     return {
       diasSemana: dataSemana,
       semanaSlots,
-      clearCache
+      clearCache,
+      showNewModal,
+      modalProfissional,
+      openNovo,
+      onModalUpdateShow,
+      onModalConfirm,
+      onModalCancel
     }
   },
   methods: {
     onNovoAgendamento() {
-      // Ação para inserir novo agendamento
-      // Implemente aqui conforme necessário
-      // Exemplo: abrir modal, etc.
-      alert('Novo agendamento!')
+      // open the new appointment modal
+      this.openNovo()
     }
   }
 };
