@@ -16,6 +16,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useProfissionais } from '~/composables/useProfissionais'
 import { useUserStore } from '~/stores/user'
 import { storeToRefs } from 'pinia'
+import { useAgendamentoStore } from '~/stores/agendamento'
 
 const { profissionais, especialidades, fetchProfissionais, fetchEspecialidades, loading, error } = useProfissionais()
 const userStore = useUserStore()
@@ -35,6 +36,9 @@ onMounted(async () => {
     encontrado = lista[0]
   }
   profissional.value = encontrado || null
+  // store selected professional in agendamento store
+  const agendamentoStore = useAgendamentoStore()
+  agendamentoStore.setSelectedProfissional(profissional.value)
   if (encontrado && especialidades.value) {
     const esp = especialidades.value.find((e: any) => e.id === encontrado.especialidade_id)
     especialidade.value = (esp && esp.especialidade) ? String(esp.especialidade) : ''

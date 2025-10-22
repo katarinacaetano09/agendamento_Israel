@@ -19,66 +19,54 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import SlotAgendamento from './SlotAgendamento.vue'
 import { HEADER_OFFSET, HOUR_HEIGHT, START_HOUR } from '~~/shared/constants/layout'
-const props = defineProps<{ data: Date }>()
+import { useAgendamentos } from '~/composables/useAgendamentos'
+import { useAgendamentoStore } from '~/stores/agendamento'
+import { storeToRefs } from 'pinia'
+
+const props = defineProps<{ data: Date, slots?: Array<any> }>()
 
 const dataFormatada = computed(() =>
   props.data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 )
 
-// Dados de agendamentos MOCKADOS para teste. Depois serão trazidos do banco.
-const agendamentosMock = [
-  // Slot exemplo para todos os dias
-  {
-    inicio: new Date(props.data.getFullYear(), props.data.getMonth(), props.data.getDate(), 8, 0, 0),
-    fim: new Date(props.data.getFullYear(), props.data.getMonth(), props.data.getDate(), 9, 0, 0),
-    titulo: 'Consulta João',
-    descricao: 'Retorno clínico'
-  },
-  // Slots específicos de outros exemplos
-  {
-    inicio: new Date('2025-10-20T10:00:00'),
-    fim: new Date('2025-10-20T11:30:00'),
-    titulo: 'Exame Maria',
-    descricao: 'Exame de sangue'
-  },
-  {
-    inicio: new Date('2025-10-21T14:00:00'),
-    fim: new Date('2025-10-21T15:00:00'),
-    titulo: 'Consulta Pedro',
-    descricao: 'Avaliação nutricional'
-  },
-  {
-    inicio: new Date('2025-10-22T16:00:00'),
-    fim: new Date('2025-10-22T17:00:00'),
-    titulo: 'Retorno Ana',
-    descricao: 'Revisão de exames'
-  },
-  {
-    inicio: new Date('2025-10-23T09:30:00'),
-    fim: new Date('2025-10-23T10:00:00'),
-    titulo: 'Consulta Lucas',
-    descricao: 'Primeira consulta'
-  },
-  {
-    inicio: new Date('2025-10-24T13:00:00'),
-    fim: new Date('2025-10-24T14:00:00'),
-    titulo: 'Exame Carla',
-    descricao: 'Ultrassom'
-  },
-  {
-    inicio: new Date('2025-10-25T11:00:00'),
-    fim: new Date('2025-10-25T12:00:00'),
-    titulo: 'Consulta Paulo',
-    descricao: 'Consulta de rotina'
-  }
-]
+// Props: `slots` is an array of agendamento rows for this date (may be empty)
+function parseDateTime(dateStr: string | null, timeStr: string | null) {
+  if (!dateStr || !timeStr) return null
+  // timeStr pode ser '12:00:00-03' ou '12:00:00'.
+  // Para preservar o horário marcado (hora local), extraímos horas e minutos e
+  // construímos uma Date local a partir das partes (ignorando sufixo de timezone).
+  const m = timeStr.match(/^(\d{2}):(\d{2})/)
+  if (!m) return null
+  const hh = Number(m[1])
+  const mm = Number(m[2])
+  const parts = dateStr.split('-')
+  if (parts.length < 3) return null
+  const year = Number(parts[0])
+  const month = Number(parts[1]) - 1
+  const day = Number(parts[2])
+  const d = new Date(year, month, day, hh, mm, 0, 0)
+  if (isNaN(d.getTime())) return null
+  return d
+}
 
-const slotsDoDia = computed(() =>
-  agendamentosMock.filter(a =>
-    a.inicio.toDateString() === props.data.toDateString()
-  )
-)
+type Slot = { inicio: Date; fim: Date; titulo: string; descricao: string }
+
+const slotsDoDia = computed<Slot[]>(() => {
+  const rows = props.slots || []
+  const mapped = rows.map((a: any): Slot | null => {
+    const inicio = parseDateTime(a.data, a.hora_inicio)
+    const fim = parseDateTime(a.data, a.hora_fim)
+    if (!inicio || !fim) return null
+    return {
+      inicio,
+      fim,
+      titulo: a.titulo ?? '',
+      descricao: a.descricao ?? ''
+    }
+  })
+  return mapped.filter((s): s is Slot => s !== null)
+})
 </script>

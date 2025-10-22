@@ -21,6 +21,8 @@ function getWeekDays(startDate: Date): Date[] {
 
 export const useAgendamentoStore = defineStore('agendamento', () => {
   const dataReferencia = ref(new Date())
+  const selectedProfissionalId = ref<number | null>(null)
+  const selectedProfissional = ref<any | null>(null)
 
   const dataSemana = computed(() => {
     const startOfWeek = getStartOfWeek(dataReferencia.value)
@@ -37,10 +39,24 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
     dataReferencia.value.setDate(dataReferencia.value.getDate() - 7)
   }
 
+  function setSelectedProfissional(prof: any | null) {
+    if (!prof) {
+      selectedProfissionalId.value = null
+      selectedProfissional.value = null
+      return
+    }
+    // professional object expected to have profissional_id
+    selectedProfissionalId.value = prof.profissional_id || null
+    selectedProfissional.value = prof
+  }
+
   return {
     dataReferencia,
     dataSemana,
     avancarSemana,
-    voltarSemana
+    voltarSemana,
+    selectedProfissionalId,
+    selectedProfissional,
+    setSelectedProfissional
   }
 })

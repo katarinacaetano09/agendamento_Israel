@@ -10,7 +10,10 @@
         <div class="flex-1 flex items-center justify-center">
           <ProfissionalInfo />
         </div>
-        <BaseButton label="Novo" variant="primary" size="md" @click="onNovoAgendamento" />
+        <div class="flex items-center gap-2">
+          <BaseButton label="Limpar cache" variant="secondary" size="sm" @click="clearCache" />
+          <BaseButton label="Novo" variant="primary" size="md" @click="onNovoAgendamento" />
+        </div>
       </div>
       <ListaDias :dias="diasSemana" />
     </div>
@@ -24,6 +27,7 @@
           v-for="(dia, idx) in diasSemana"
           :key="idx"
           :data="dia"
+          :slots="semanaSlots[ dia.toISOString().slice(0,10) ] || []"
           class="flex-1 min-w-0"
         />
       </div>
@@ -41,6 +45,8 @@ import BaseButton from '../BaseButton.vue'
 
 import { useAgendamentoStore } from '~/stores/agendamento'
 import { storeToRefs } from 'pinia'
+import { ref, watch, onMounted } from 'vue'
+import { useAgendamentos } from '~/composables/useAgendamentos'
 
 export default {
   name: 'AgendamentoManager',
@@ -48,8 +54,82 @@ export default {
   setup() {
     const agendamentoStore = useAgendamentoStore()
     const { dataSemana } = storeToRefs(agendamentoStore)
+    const { selectedProfissionalId, selectedProfissional } = storeToRefs(agendamentoStore)
+  const { fetchAgendamentosPorProfissionalWeek, invalidateCache } = useAgendamentos()
+
+  const semanaSlots = ref<Record<string, Array<any>>>({})
+
+    function formatDate(d: Date) {
+      return d.toISOString().slice(0, 10)
+    }
+
+    async function loadSemana() {
+      const profId = Number(selectedProfissionalId.value)
+      if (!profId) {
+        semanaSlots.value = {}
+        return
+      }
+      if (!dataSemana.value || dataSemana.value.length === 0) {
+        semanaSlots.value = {}
+        return
+      }
+      const startDate = dataSemana.value[0]
+      const endDate = dataSemana.value[dataSemana.value.length - 1]
+      if (!startDate || !endDate) {
+        semanaSlots.value = {}
+        return
+      }
+      const start = formatDate(startDate)
+      const end = formatDate(endDate)
+  const res = await fetchAgendamentosPorProfissionalWeek(profId, start, end)
+      if (!res) {
+        semanaSlots.value = {}
+        return
+      }
+      // map by date
+      const map: Record<string, Array<any>> = {}
+      for (const a of res) {
+        const key = a.data ?? ''
+        if (!key) continue
+        if (!map[key]) map[key] = []
+        map[key].push(a)
+      }
+      semanaSlots.value = map
+    }
+
+    async function clearCache() {
+      const profId = Number(selectedProfissionalId.value)
+      if (!profId) {
+        invalidateCache()
+      } else {
+        if (!dataSemana.value || dataSemana.value.length === 0) {
+          invalidateCache(profId)
+        } else {
+          const startDate = dataSemana.value[0]
+          const endDate = dataSemana.value[dataSemana.value.length - 1]
+          if (!startDate || !endDate) {
+            invalidateCache(profId)
+          } else {
+            const start = formatDate(startDate)
+            const end = formatDate(endDate)
+            invalidateCache(profId, start, end)
+          }
+        }
+      }
+      await loadSemana()
+    }
+
+    watch([() => selectedProfissionalId.value, () => dataSemana.value], () => {
+      loadSemana()
+    })
+
+    onMounted(() => {
+      loadSemana()
+    })
     return {
-      diasSemana: dataSemana
+      diasSemana: dataSemana,
+      semanaSlots,
+      clearCache
     }
   },
   methods: {

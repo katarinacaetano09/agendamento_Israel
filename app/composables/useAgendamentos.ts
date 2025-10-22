@@ -39,10 +39,75 @@ export function useAgendamentos() {
     }
   }
 
+  /**
+   * Busca agendamentos de um profissional em um intervalo de datas (inclusive)
+   * @param profissionalId id do profissional
+   * @param startDate 'YYYY-MM-DD'
+   * @param endDate 'YYYY-MM-DD'
+   */
+  async function fetchAgendamentosPorProfissionalRange(profissionalId: number, startDate: string, endDate: string) {
+    loading.value = true
+    error.value = null
+    try {
+      const supabase = useSupabaseClient()
+      const { data: d, error: err } = await supabase
+        .from('ag_agendamentos')
+        .select('*')
+        .eq('profissional_id', profissionalId)
+        .eq('cancelado', false)
+        .gte('data', startDate)
+        .lte('data', endDate)
+      if (err) throw err
+      agendamentos.value = d as Agendamento[]
+      return agendamentos.value
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao buscar agendamentos por intervalo'
+      agendamentos.value = null
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Simple in-memory cache: key => data
+  const cache = new Map<string, Agendamento[] | null>()
+
+  function cacheKey(profissionalId: number, startDate: string, endDate: string) {
+    return `${profissionalId}:${startDate}:${endDate}`
+  }
+
+  async function fetchAgendamentosPorProfissionalWeek(profissionalId: number, startDate: string, endDate: string) {
+    const key = cacheKey(profissionalId, startDate, endDate)
+    if (cache.has(key)) {
+      return cache.get(key)
+    }
+    const res = await fetchAgendamentosPorProfissionalRange(profissionalId, startDate, endDate)
+    cache.set(key, res)
+    return res
+  }
+
+  function invalidateCache(profissionalId?: number, startDate?: string, endDate?: string) {
+    if (!profissionalId) {
+      cache.clear()
+      return
+    }
+    if (startDate && endDate) {
+      cache.delete(cacheKey(profissionalId, startDate, endDate))
+      return
+    }
+    // remove any entries for profissionalId
+    for (const k of Array.from(cache.keys())) {
+      if (k.startsWith(profissionalId + ':')) cache.delete(k)
+    }
+  }
+
   return {
     agendamentos,
     loading,
     error,
-    fetchAgendamentosPorProfissional
+    fetchAgendamentosPorProfissional,
+    fetchAgendamentosPorProfissionalRange,
+    fetchAgendamentosPorProfissionalWeek,
+    invalidateCache
   }
 }
