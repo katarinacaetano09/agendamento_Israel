@@ -2,14 +2,6 @@
 
 <template>
   <div class="agendamento-manager-container w-full mt-4 flex flex-col rounded-xl overflow-hidden" style="height: 100%; min-height: 400px;">
-    <NewAgendamentoModal
-      :show="showNewModal"
-      :profissional="modalProfissional"
-      :datas="diasSemana"
-      @update:show="onModalUpdateShow"
-      @confirm="onModalConfirm"
-      @cancel="onModalCancel"
-    />
     <div
       class="header px-8 flex flex-col justify-between"
     >
@@ -42,6 +34,14 @@
     </div>
   </div>
 </template>
+<NewAgendamentoModal
+  :show="showNewModal"
+  :profissional="modalProfissional"
+  :datas="diasSemana"
+  @update:show="onModalUpdateShow"
+  @confirm="onModalConfirm"
+  @cancel="onModalCancel"
+/>
 
 <script lang="ts">
 import AgendamentoSemanaControl from './AgendamentoSemanaControl.vue'
@@ -59,7 +59,7 @@ import { useAgendamentos } from '~/composables/useAgendamentos'
 
 export default {
   name: 'AgendamentoManager',
-  components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, ReguaHorarios, ItemAgendamento, BaseButton },
+  components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, ReguaHorarios, ItemAgendamento, BaseButton, NewAgendamentoModal },
   setup() {
     const agendamentoStore = useAgendamentoStore()
     const { dataSemana } = storeToRefs(agendamentoStore)
@@ -110,6 +110,8 @@ export default {
 
     function openNovo() {
       modalProfissional.value = selectedProfissional.value || null
+      // debug log: open modal
+      try { console.log('[debug] openNovo called, profissional:', modalProfissional.value) } catch(e) {}
       showNewModal.value = true
     }
 
@@ -143,6 +145,7 @@ export default {
       loadSemana()
     })
     function onModalUpdateShow(val: boolean) {
+      try { console.log('[debug] onModalUpdateShow:', val) } catch(e) {}
       showNewModal.value = val
     }
 
@@ -152,6 +155,7 @@ export default {
     }
 
     function onModalCancel() {
+      try { console.log('[debug] onModalCancel') } catch(e) {}
       showNewModal.value = false
     }
 

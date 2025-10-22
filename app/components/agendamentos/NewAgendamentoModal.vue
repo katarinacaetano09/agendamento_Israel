@@ -23,9 +23,8 @@
       <!-- Profissional (read-only) -->
       <div>
         <label class="block mb-1 text-sm font-medium text-neutral-700">Profissional</label>
-        <div class="bg-neutral-50 border border-neutral-200 rounded-md px-4 py-2">
-          <!-- reuse ProfissionalInfo for display -->
-          <ProfissionalInfo />
+        <div class="bg-neutral-50 border border-neutral-200 rounded-md px-4 py-2 text-sm text-neutral-800">
+          {{ profissionalNome }}
         </div>
       </div>
 
@@ -78,16 +77,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 import BaseModal from '../BaseModal.vue'
 import BaseInput from '../BaseInput.vue'
 import BaseButton from '../BaseButton.vue'
-import ProfissionalInfo from './ProfissionalInfo.vue'
 
 const props = defineProps<{ show: boolean; profissional?: any; datas?: Date[] }>()
 const emit = defineEmits(['update:show', 'confirm', 'cancel'])
 
-const show = props.show
+// use a reactive ref that points to the parent's prop so v-if updates reliably
+const show = toRef(props, 'show')
 
 // simple local form state (layout only)
 const clienteId = ref('')
@@ -106,6 +105,10 @@ const dateOptions = computed(() => {
     arr.push({ value: iso, label: d.toLocaleDateString() })
   }
   return arr
+})
+
+const profissionalNome = computed(() => {
+  return props.profissional?.nome || '—'
 })
 
 // hours from 08:00 to 22:00 hourly
@@ -134,9 +137,16 @@ function onConfirm() {
     hora_inicio: horaInicio.value,
     hora_fim: horaFim.value
   }
+  try { console.log('[debug] NewAgendamentoModal onConfirm payload:', payload) } catch(e) {}
   emit('confirm', payload)
   emit('update:show', false)
 }
+
+// watch show prop for debugging
+import { watch } from 'vue'
+watch(() => props.show, (v) => {
+  try { console.log('[debug] NewAgendamentoModal show changed ->', v) } catch(e) {}
+})
 </script>
 
 
