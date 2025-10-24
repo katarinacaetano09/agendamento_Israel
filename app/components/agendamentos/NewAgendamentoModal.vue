@@ -101,9 +101,12 @@ const { clientes, fetchClientes, loading: loadingClientes } = useClientes()
 const clienteSelecionadoId = ref('')
 const clientesLista = computed(() => clientes.value || [])
 if (!clientes.value) fetchClientes()
+import { navigateTo } from '#app'
+
 function abrirCadastroCliente() {
-  // Aqui você pode abrir um modal de cadastro ou redirecionar para a tela de clientes
-  alert('Abrir modal/cadastro de novo cliente (implementar)')
+  // fechar o modal e redirecionar para a página de clientes
+  try { emit('update:show', false) } catch (e) {}
+  navigateTo('/clientes')
 }
 
 // Demais campos do formulário
