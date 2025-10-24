@@ -7,20 +7,11 @@
     </template>
 
     <div class="p-4 grid grid-cols-1 gap-4">
-      <!-- Cliente (dropdown do banco) -->
+      <!-- Cliente (pesquisável) -->
       <div>
         <label class="block mb-1 text-sm font-medium text-neutral-700">Cliente</label>
-        <select
-          v-model="clienteSelecionadoId"
-          class="block w-full rounded-md border-neutral-300 px-4 py-2 text-sm"
-        >
-          <option value="">Selecione um cliente</option>
-          <option v-for="c in clientesLista" :key="c.id" :value="c.id">{{ c.nome }} ({{ c.cpf }})</option>
-        </select>
-        <div v-if="clientesLista.length === 0 && !loadingClientes" class="mt-2 text-sm text-neutral-500">
-          Nenhum cliente encontrado. <button class="text-primary underline ml-1" type="button" @click="abrirCadastroCliente">Cadastrar novo cliente</button>
-        </div>
-        <div v-else-if="clientesLista.length > 0" class="mt-2 text-sm text-neutral-500">
+        <ClienteSelector v-model="clienteTexto" placeholder="Pesquisar cliente..." @select="onClienteSelect" />
+        <div class="mt-2 text-sm text-neutral-500">
           Não encontrou o cliente? <button class="text-primary underline ml-1" type="button" @click="abrirCadastroCliente">Cadastrar novo cliente</button>
         </div>
       </div>
@@ -96,12 +87,17 @@ const show = toRef(props, 'show')
 
 
 // Dropdown de cliente
-import { useClientes } from '~/composables/useClientes'
-const { clientes, fetchClientes, loading: loadingClientes } = useClientes()
-const clienteSelecionadoId = ref('')
-const clientesLista = computed(() => clientes.value || [])
-if (!clientes.value) fetchClientes()
+import ClienteSelector from '../common/ClienteSelector.vue'
 import { navigateTo } from '#app'
+
+// cliente selecionado: guardamos o id e o texto exibido
+const clienteSelecionadoId = ref<number | null>(null)
+const clienteTexto = ref('')
+
+function onClienteSelect(c: any) {
+  clienteSelecionadoId.value = c?.id ?? null
+  clienteTexto.value = c?.nome ?? ''
+}
 
 function abrirCadastroCliente() {
   // fechar o modal e redirecionar para a página de clientes
