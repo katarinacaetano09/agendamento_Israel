@@ -33,15 +33,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal inserido dentro do template para garantir renderização/prop binding corretos -->
+  <NewAgendamentoModal
+    :show="showNewModal"
+    :profissional="modalProfissional"
+    :datas="diasSemana"
+    @update:show="onModalUpdateShow"
+    @confirm="onModalConfirm"
+    @cancel="onModalCancel"
+  />
 </template>
-<NewAgendamentoModal
-  :show="showNewModal"
-  :profissional="modalProfissional"
-  :datas="diasSemana"
-  @update:show="onModalUpdateShow"
-  @confirm="onModalConfirm"
-  @cancel="onModalCancel"
-/>
 
 <script lang="ts">
 import AgendamentoSemanaControl from './AgendamentoSemanaControl.vue'
