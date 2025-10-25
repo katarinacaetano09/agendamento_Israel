@@ -1,7 +1,7 @@
 <template>
   <div
-    class="absolute left-1 right-1 rounded bg-gray-200 text-neutral-800 px-2 py-1 shadow-md text-xs flex flex-col border border-gray-300"
-    :style="slotStyle"
+    class="absolute left-1 right-1 rounded px-2 py-1 shadow-md text-xs flex flex-col border"
+    :style="{ ...slotStyle, backgroundColor: color ?? '#e5e7eb', color: textColor }"
   >
     <span class="font-bold w-full block">{{ titulo }}</span>
     <span class="w-full block">{{ descricao }}</span>
@@ -12,12 +12,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { HOUR_HEIGHT, HEADER_OFFSET, START_HOUR } from '~~/shared/constants/layout'
+import { readableTextColor } from '~/utils/color'
 const props = defineProps<{
   inicio: Date,
   fim: Date,
   titulo: string,
-  descricao: string
+  descricao: string,
+  color?: string | null
 }>()
+
+ 
 
 function formatHora(date: Date) {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
@@ -38,4 +42,7 @@ const slotStyle = computed(() => {
     zIndex: 10
   }
 })
+
+const color = computed(() => props.color ?? '#e5e7eb')
+const textColor = computed(() => readableTextColor(color.value))
 </script>

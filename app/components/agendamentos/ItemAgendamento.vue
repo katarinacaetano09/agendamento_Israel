@@ -6,14 +6,15 @@
 <template>
   <div class="flex flex-col items-center justify-start h-full w-full flex-1 min-w-0 p-0 m-0">
   <div class="relative w-full flex-1" :style="{ minHeight: (HOUR_HEIGHT * (22 - START_HOUR)) + 'px', paddingTop: HEADER_OFFSET + 'px', paddingBottom: HEADER_OFFSET + 'px' }">
-      <SlotAgendamento
-        v-for="(slot, idx) in slotsDoDia"
-        :key="idx"
-        :inicio="slot.inicio"
-        :fim="slot.fim"
-        :titulo="slot.titulo"
-        :descricao="slot.descricao"
-      />
+          <SlotAgendamento
+            v-for="(slot, idx) in slotsDoDia"
+            :key="idx"
+            :inicio="slot.inicio"
+            :fim="slot.fim"
+            :titulo="slot.titulo"
+            :descricao="slot.descricao"
+            :color="slot.color"
+          />
     </div>
   </div>
 </template>
@@ -52,7 +53,7 @@ function parseDateTime(dateStr: string | null, timeStr: string | null) {
   return d
 }
 
-type Slot = { inicio: Date; fim: Date; titulo: string; descricao: string }
+type Slot = { inicio: Date; fim: Date; titulo: string; descricao: string; color?: string }
 
 const slotsDoDia = computed<Slot[]>(() => {
   const rows = props.slots || []
@@ -64,7 +65,8 @@ const slotsDoDia = computed<Slot[]>(() => {
       inicio,
       fim,
       titulo: a.titulo ?? '',
-      descricao: a.descricao ?? ''
+      descricao: a.descricao ?? '',
+      color: (a as any).color ?? undefined
     }
   })
   return mapped.filter((s): s is Slot => s !== null)

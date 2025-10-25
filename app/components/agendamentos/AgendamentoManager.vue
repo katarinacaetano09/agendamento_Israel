@@ -102,6 +102,14 @@ export default {
       }
       // map by date (normalize to YYYY-MM-DD)
       const map: Record<string, Array<any>> = {}
+      // load local client-side color mappings (if user selected color but DB doesn't store it)
+      let localColors: Record<string, string> = {}
+      try {
+        const raw = localStorage.getItem('agendamentoColors')
+        if (raw) localColors = JSON.parse(raw)
+      } catch (e) {
+        localColors = {}
+      }
       for (const a of res) {
         // a.data may be a Date object, a string like '2025-10-24' or an ISO timestamp.
         const raw = a?.data
@@ -116,6 +124,11 @@ export default {
         }
         if (!key) continue
         if (!map[key]) map[key] = []
+        // attach client-side color if DB didn't provide one
+        try {
+          const id = String(a?.id ?? '')
+          if (!(a as any).color && localColors[id]) (a as any).color = localColors[id]
+        } catch (e) {}
         map[key]!.push(a)
       }
       semanaSlots.value = map
