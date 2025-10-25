@@ -50,7 +50,7 @@
           <label class="block mb-1 text-sm font-medium text-neutral-700">Hora início</label>
           <select v-model="horaInicio" :disabled="!selectedDate" class="block w-full rounded-md border-neutral-300 px-4 py-2 text-sm">
             <option value="">Selecione</option>
-            <option v-for="t in timeInicioOptions" :key="t" :value="t">{{ t }}</option>
+                    <option v-for="t in timeInicioOptionsFiltered" :key="t" :value="t">{{ t }}</option>
           </select>
         </div>
         <div>
@@ -78,7 +78,7 @@ import BaseModal from '../BaseModal.vue'
 import BaseInput from '../BaseInput.vue'
 import BaseButton from '../BaseButton.vue'
 
-const props = defineProps<{ show: boolean; profissional?: any; datas?: Date[] }>()
+const props = defineProps<{ show: boolean; profissional?: any; datas?: Date[]; ocupados?: Record<string, any[]> }>()
 const emit = defineEmits(['update:show', 'confirm', 'cancel'])
 
 // use a reactive ref that points to the parent's prop so v-if updates reliably
@@ -89,6 +89,7 @@ const show = toRef(props, 'show')
 // Dropdown de cliente
 import ClienteSelector from '../common/ClienteSelector.vue'
 import { navigateTo } from '#app'
+import { useToast } from 'vue-toastification'
 
 // cliente selecionado: guardamos o id e o texto exibido
 const clienteSelecionadoId = ref<number | null>(null)
@@ -111,6 +112,95 @@ const descricao = ref('')
 const selectedDate = ref('')
 const horaInicio = ref('')
 const horaFim = ref('')
+
+// configurações
+const MIN_DURATION_MIN = 30 // duração mínima em minutos
+
+// helpers de tempo
+function timeToMinutes(t: string) {
+  const [hh, mm] = (t || '').split(':')
+  return Number(hh || 0) * 60 + Number(mm || 0)
+}
+function minutesToTime(m: number) {
+  const hh = Math.floor(m / 60).toString().padStart(2, '0')
+  const mm = (m % 60).toString().padStart(2, '0')
+  return `${hh}:${mm}`
+}
+
+function mergeIntervals(intervals: Array<[number, number]>) {
+  if (!intervals || intervals.length === 0) return [] as Array<[number, number]>
+  const sorted = intervals.slice().sort((a, b) => a[0] - b[0])
+  const res: Array<[number, number]> = []
+  const first = sorted[0]!
+  let curStart = first[0]
+  let curEnd = first[1]
+  for (let i = 1; i < sorted.length; i++) {
+    const pair = sorted[i]!
+    const s = pair[0]
+    const e = pair[1]
+    if (s <= curEnd) {
+      curEnd = Math.max(curEnd, e)
+    } else {
+      res.push([curStart, curEnd])
+      curStart = s
+      curEnd = e
+    }
+  }
+  res.push([curStart, curEnd])
+  return res
+}
+
+function intervalsIntersect(aStart: number, aEnd: number, bStart: number, bEnd: number) {
+  return Math.max(aStart, bStart) < Math.min(aEnd, bEnd)
+}
+
+// pega os agendamentos ocupados para a data selecionada e transforma em intervalos mesclados (minutos)
+const ocupadosParaData = computed(() => {
+  const key = selectedDate.value || ''
+  const list = (props.ocupados && props.ocupados[key]) || []
+  const intervals: Array<[number, number]> = []
+  for (const a of list) {
+    if (!a || !a.hora_inicio || !a.hora_fim) continue
+    const s = timeToMinutes(String(a.hora_inicio).slice(0,5))
+    const e = timeToMinutes(String(a.hora_fim).slice(0,5))
+    if (!isNaN(s) && !isNaN(e) && e > s) intervals.push([s, e])
+  }
+  return mergeIntervals(intervals)
+})
+
+// opções de início filtradas — remove inícios que gerariam conflito com ocupados
+const timeInicioOptionsFiltered = computed(() => {
+  const occupied = ocupadosParaData.value
+  const res: string[] = []
+  for (const t of timeInicioOptions) {
+    const s = timeToMinutes(t)
+    const e = s + MIN_DURATION_MIN
+    // se intersecta com algum ocupado, não inclui
+    const intersects = occupied.some(([os, oe]) => intervalsIntersect(s, e, os, oe))
+    if (!intersects) res.push(t)
+  }
+  return res
+})
+
+// timeFimOptions agora deve derivar não só do slice, mas também considerando ocupados
+const timeFimOptions = computed(() => {
+  if (!horaInicio.value) return []
+  const base = timeInicioOptions
+  const idx = base.indexOf(horaInicio.value)
+  if (idx === -1) return []
+  const candidate = base.slice(idx + 1)
+  const occupied = ocupadosParaData.value
+  const start = timeToMinutes(horaInicio.value)
+  const allowed: string[] = []
+  for (const t of candidate) {
+    const end = timeToMinutes(t)
+    if (end <= start) continue
+    // check if [start, end) intersects occupied
+    const intersects = occupied.some(([os, oe]) => intervalsIntersect(start, end, os, oe))
+    if (!intersects) allowed.push(t)
+  }
+  return allowed
+})
 
 const dateOptions = computed(() => {
   const arr: Array<{ value: string; label: string }> = []
@@ -150,14 +240,7 @@ function gerarHorarios(inicio: string, fim: string, stepMin: number = 30) {
 }
 const timeInicioOptions = gerarHorarios('08:00', '22:00')
 
-const timeFimOptions = computed(() => {
-  if (!horaInicio.value) return []
-  // pega o próximo slot após horaInicio
-  const idx = timeInicioOptions.indexOf(horaInicio.value)
-  if (idx === -1) return []
-  // hora_fim deve ser pelo menos 30min depois do início
-  return timeInicioOptions.slice(idx + 1)
-})
+// removed simple timeFimOptions; replaced by the occupied-aware computed earlier
 
 // Sempre que horaInicio mudar, já sugere o próximo slot para horaFim
 // (já importado acima)
@@ -178,8 +261,7 @@ function onCancel() {
   emit('cancel')
 }
 
-function onConfirm() {
-  // layout only: emit the filled data
+async function onConfirm() {
   const payload = {
     clienteId: clienteSelecionadoId.value || null,
     profissional: props.profissional || null,
@@ -189,9 +271,54 @@ function onConfirm() {
     hora_inicio: horaInicio.value,
     hora_fim: horaFim.value
   }
-  try { console.log('[debug] NewAgendamentoModal onConfirm payload:', payload) } catch(e) {}
-  emit('confirm', payload)
-  emit('update:show', false)
+
+  // validações básicas
+  if (!payload.data || !payload.hora_inicio || !payload.hora_fim) {
+    alert('Por favor selecione data, hora início e hora fim.')
+    return
+  }
+
+  // verifica conflito contra ocupados
+  const start = timeToMinutes(String(payload.hora_inicio))
+  const end = timeToMinutes(String(payload.hora_fim))
+  const occupied = ocupadosParaData.value
+  const conflict = occupied.some(([os, oe]) => intervalsIntersect(start, end, os, oe))
+  if (conflict) {
+    alert('O horário selecionado conflita com um agendamento existente. Por favor escolha outro horário.')
+    return
+  }
+
+    const toast = useToast()
+    try {
+      const supabase = useSupabaseClient()
+      const insertRow: any = {
+        // prefer the backend field name `profissional_id` if present on the profissional object,
+        // fallback to `id` if that's the shape, otherwise null
+        profissional_id: props.profissional?.profissional_id ?? props.profissional?.id ?? null,
+        cliente_id: payload.clienteId,
+        titulo: payload.titulo,
+        descricao: payload.descricao,
+        data: payload.data,
+        hora_inicio: payload.hora_inicio,
+        hora_fim: payload.hora_fim,
+        cancelado: false
+      }
+      console.debug('[debug] NewAgendamentoModal insertRow:', insertRow)
+      const { data: d, error: err } = await supabase.from('ag_agendamentos').insert(insertRow).select().single()
+      if (err) {
+        console.error('[debug] Supabase insert error:', err)
+        toast.error('Erro ao salvar agendamento: ' + (err.message || err))
+        return
+      }
+      console.log('[debug] Agendamento inserido:', d)
+      toast.success('Agendamento salvo com sucesso!')
+      // notifica o parent que salvou (ele deve recarregar a semana)
+      emit('confirm', d)
+      emit('update:show', false)
+    } catch (e: any) {
+      console.error('Erro ao salvar agendamento', e)
+      toast.error('Erro ao salvar agendamento: ' + (e?.message || e))
+    }
 }
 
 // watch show prop for debugging
