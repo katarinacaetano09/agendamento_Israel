@@ -1,7 +1,7 @@
 <template>
   <div
     class="absolute left-1 right-1 rounded bg-gray-200 text-neutral-800 px-2 py-1 shadow-md text-xs flex flex-col border border-gray-300"
-    :style="{ ...slotStyle, height: 'auto' }"
+    :style="slotStyle"
   >
     <span class="font-bold w-full block">{{ titulo }}</span>
     <span class="w-full block">{{ descricao }}</span>
