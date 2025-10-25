@@ -39,6 +39,7 @@
     :show="showNewModal"
     :profissional="modalProfissional"
     :datas="diasSemana"
+    :ocupados="semanaSlots"
     @update:show="onModalUpdateShow"
     @confirm="onModalConfirm"
     @cancel="onModalCancel"
@@ -99,13 +100,23 @@ export default {
         semanaSlots.value = {}
         return
       }
-      // map by date
+      // map by date (normalize to YYYY-MM-DD)
       const map: Record<string, Array<any>> = {}
       for (const a of res) {
-        const key = a.data ?? ''
+        // a.data may be a Date object, a string like '2025-10-24' or an ISO timestamp.
+        const raw = a?.data
+        let key = ''
+        if (raw && typeof raw === 'object' && typeof (raw as any).toISOString === 'function') {
+          // treat as Date-like
+          key = (raw as any).toISOString().slice(0, 10)
+        } else if (typeof raw === 'string') {
+          key = (raw || '').slice(0, 10)
+        } else {
+          key = String(raw ?? '').slice(0, 10)
+        }
         if (!key) continue
         if (!map[key]) map[key] = []
-        map[key].push(a)
+        map[key]!.push(a)
       }
       semanaSlots.value = map
     }
@@ -151,9 +162,29 @@ export default {
       showNewModal.value = val
     }
 
-    function onModalConfirm(payload: any) {
+    async function onModalConfirm(payload: any) {
       console.log('Novo agendamento payload (layout only):', payload)
       showNewModal.value = false
+      // if payload contains profissional_id, invalidate cache for that profissional and reload
+      try {
+        const profId = Number(payload?.profissional_id ?? payload?.profissional?.id ?? selectedProfissionalId.value)
+        if (profId) {
+          // invalidate cache for the week range to force fresh fetch
+          if (dataSemana.value && dataSemana.value.length > 0 && dataSemana.value[0] && dataSemana.value[dataSemana.value.length - 1]) {
+            const start = formatDate(dataSemana.value[0] as Date)
+            const end = formatDate(dataSemana.value[dataSemana.value.length - 1] as Date)
+            invalidateCache(profId, start, end)
+          } else {
+            invalidateCache(profId)
+          }
+        } else {
+          // fallback: full invalidate
+          invalidateCache()
+        }
+        await loadSemana()
+      } catch (e) {
+        console.warn('Erro ao recarregar semana após salvar agendamento', e)
+      }
     }
 
     function onModalCancel() {
