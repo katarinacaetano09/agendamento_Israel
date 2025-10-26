@@ -6,7 +6,8 @@
       </div>
     </template>
 
-    <div class="p-4 grid grid-cols-1 gap-4">
+  <!-- constrain modal inner width and height so it fits smaller screens and the content can scroll -->
+  <div class="p-4 grid grid-cols-1 gap-4 max-w-lg w-full mx-auto max-h-[65vh] overflow-y-auto">
       <!-- Cliente (pesquisável) -->
       <div>
         <label class="block mb-1 text-sm font-medium text-neutral-700">Cliente</label>
