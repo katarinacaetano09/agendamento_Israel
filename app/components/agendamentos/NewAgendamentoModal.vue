@@ -117,6 +117,15 @@ const profissionalNome = computed(() => {
   return props.profissional?.nome || '—'
 })
 
+// helper: combine selected date and time and append Brazil GMT-3 offset
+function formatDateTimeWithGMTMinus3(dateStr: string | null | undefined, timeStr: string | null | undefined) {
+  if (!dateStr || !timeStr) return null
+  // ensure time has seconds
+  const time = timeStr.length === 5 ? `${timeStr}:00` : timeStr
+  // return a timezone-aware string like '2025-10-26T14:00:00-03:00'
+  return `${dateStr}T${time}-03:00`
+}
+
 function onClienteSelect(c: any) {
   clienteSelecionadoId.value = c?.id ?? null
   clienteTexto.value = c?.nome ?? ''
@@ -155,8 +164,9 @@ async function onConfirm() {
       // persist selected color server-side so slots are consistent across devices
       cor: selectedColor?.value ?? null,
       data: payload.data,
-      hora_inicio: payload.hora_inicio,
-      hora_fim: payload.hora_fim,
+      // save times with explicit Brazil GMT-3 offset so DB receives timezone-aware values
+      hora_inicio: formatDateTimeWithGMTMinus3(payload.data, payload.hora_inicio) ?? payload.hora_inicio,
+      hora_fim: formatDateTimeWithGMTMinus3(payload.data, payload.hora_fim) ?? payload.hora_fim,
       cancelado: false
     }
     console.debug('[debug] NewAgendamentoModal insertRow:', insertRow)
