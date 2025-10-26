@@ -152,6 +152,8 @@ async function onConfirm() {
       cliente_id: payload.clienteId,
       titulo: payload.titulo,
       descricao: payload.descricao,
+      // persist selected color server-side so slots are consistent across devices
+      cor: selectedColor?.value ?? null,
       data: payload.data,
       hora_inicio: payload.hora_inicio,
       hora_fim: payload.hora_fim,
