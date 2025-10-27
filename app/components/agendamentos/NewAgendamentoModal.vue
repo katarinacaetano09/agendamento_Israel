@@ -117,13 +117,12 @@ const profissionalNome = computed(() => {
   return props.profissional?.nome || '—'
 })
 
-// helper: combine selected date and time and append Brazil GMT-3 offset
-function formatDateTimeWithGMTMinus3(dateStr: string | null | undefined, timeStr: string | null | undefined) {
-  if (!dateStr || !timeStr) return null
-  // ensure time has seconds
-  const time = timeStr.length === 5 ? `${timeStr}:00` : timeStr
-  // return a timezone-aware string like '2025-10-26T14:00:00-03:00'
-  return `${dateStr}T${time}-03:00`
+
+// helper: retorna horário puro com offset GMT-3 (HH:mm:ss-03:00)
+function formatTimeWithGMTMinus3(timeStr: string | null | undefined) {
+  if (!timeStr) return null
+  const base = timeStr.length === 5 ? `${timeStr}:00` : timeStr
+  return `${base}-03:00`
 }
 
 function onClienteSelect(c: any) {
@@ -161,13 +160,13 @@ async function onConfirm() {
       cliente_id: payload.clienteId,
       titulo: payload.titulo,
       descricao: payload.descricao,
-      // persist selected color server-side so slots are consistent across devices
-      cor: selectedColor?.value ?? null,
-      data: payload.data,
-      // save times with explicit Brazil GMT-3 offset so DB receives timezone-aware values
-      hora_inicio: formatDateTimeWithGMTMinus3(payload.data, payload.hora_inicio) ?? payload.hora_inicio,
-      hora_fim: formatDateTimeWithGMTMinus3(payload.data, payload.hora_fim) ?? payload.hora_fim,
-      cancelado: false
+  // persist selected color server-side so slots are consistent across devices
+  cor: selectedColor?.value ?? null,
+  data: payload.data,
+  // salvar horário com offset GMT-3 no banco
+  hora_inicio: formatTimeWithGMTMinus3(payload.hora_inicio),
+  hora_fim: formatTimeWithGMTMinus3(payload.hora_fim),
+  cancelado: false
     }
     console.debug('[debug] NewAgendamentoModal insertRow:', insertRow)
     const { data: d, error: err } = await supabase.from('ag_agendamentos').insert(insertRow).select().single()
