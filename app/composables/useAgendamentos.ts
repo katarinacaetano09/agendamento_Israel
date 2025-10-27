@@ -1,16 +1,11 @@
 import { ref } from 'vue'
-import type { Agendamento } from '../../shared/types/Agendamento'
+import type { Agendamento, AgendamentoInsert } from '../../shared/types/Agendamento'
 
 export function useAgendamentos() {
   const agendamentos = ref<Agendamento[] | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  /**
-   * Busca agendamentos de um profissional, não trazendo os cancelados.
-   * @param profissionalId id do profissional (campo profissional_id)
-   * @param data opcional: filtrar por data (YYYY-MM-DD)
-   */
   async function fetchAgendamentosPorProfissional(profissionalId: number, data?: string) {
     loading.value = true
     error.value = null
@@ -39,12 +34,6 @@ export function useAgendamentos() {
     }
   }
 
-  /**
-   * Busca agendamentos de um profissional em um intervalo de datas (inclusive)
-   * @param profissionalId id do profissional
-   * @param startDate 'YYYY-MM-DD'
-   * @param endDate 'YYYY-MM-DD'
-   */
   async function fetchAgendamentosPorProfissionalRange(profissionalId: number, startDate: string, endDate: string) {
     loading.value = true
     error.value = null
@@ -69,7 +58,6 @@ export function useAgendamentos() {
     }
   }
 
-  // Simple in-memory cache: key => data
   const cache = new Map<string, Agendamento[] | null>()
 
   function cacheKey(profissionalId: number, startDate: string, endDate: string) {
@@ -95,9 +83,29 @@ export function useAgendamentos() {
       cache.delete(cacheKey(profissionalId, startDate, endDate))
       return
     }
-    // remove any entries for profissionalId
     for (const k of Array.from(cache.keys())) {
       if (k.startsWith(profissionalId + ':')) cache.delete(k)
+    }
+  }
+
+  async function insertAgendamento(agendamento: Omit<AgendamentoInsert, 'user_id'>) {
+    loading.value = true
+    error.value = null
+    try {
+      const supabase = useSupabaseClient()
+      const { data: d, error: err } = await supabase
+        .from('ag_agendamentos')
+        .insert([agendamento] as any)
+        .select()
+        .single()
+      if (err) throw err
+      agendamentos.value = agendamentos.value ? [d, ...agendamentos.value] : [d]
+      return d as Agendamento
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao inserir agendamento'
+      return null
+    } finally {
+      loading.value = false
     }
   }
 
@@ -108,6 +116,7 @@ export function useAgendamentos() {
     fetchAgendamentosPorProfissional,
     fetchAgendamentosPorProfissionalRange,
     fetchAgendamentosPorProfissionalWeek,
-    invalidateCache
+    invalidateCache,
+    insertAgendamento
   }
 }
