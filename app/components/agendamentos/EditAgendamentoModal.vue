@@ -50,6 +50,7 @@ import BaseInput from '../BaseInput.vue'
 import BaseButton from '../BaseButton.vue'
 import ColorPicker from '../common/ColorPicker.vue'
 import { useToast } from 'vue-toastification'
+import ConfirmDeleteModal from '../ConfirmDeleteModal.vue'
 
 const props = defineProps<{ show: boolean; agendamento?: any }>()
 const emit = defineEmits(['update:show', 'confirm', 'cancel'])
@@ -108,30 +109,39 @@ async function onSave() {
   }
 }
 
+const showConfirm = ref(false)
+
 async function onCancelarAgendamento() {
   if (!props.agendamento) return
+  // open confirmation modal instead of browser confirm
+  showConfirm.value = true
+}
+
+async function onConfirmDelete() {
+  if (!props.agendamento) return
   const toast = useToast()
-  const ok = confirm('Tem certeza que deseja cancelar este agendamento?')
-  if (!ok) return
   try {
-  const { cancelAgendamento } = useAgendamentoService()
-  const now = new Date().toISOString()
-  console.debug('[debug] EditAgendamentoModal onCancelarAgendamento id=', props.agendamento?.id)
-  const { data, error } = await cancelAgendamento(props.agendamento.id)
-  console.debug('[debug] EditAgendamentoModal onCancelarAgendamento response:', { data, error })
+    const { cancelAgendamento } = useAgendamentoService()
+    console.debug('[debug] EditAgendamentoModal onConfirmDelete id=', props.agendamento?.id)
+    const { data, error } = await cancelAgendamento(props.agendamento.id)
+    console.debug('[debug] EditAgendamentoModal onConfirmDelete response:', { data, error })
     if (error) {
       toast.error('Erro ao cancelar: ' + (error.message || error))
+      showConfirm.value = false
       return
     }
     if (!data) {
       toast.error('Não foi possível cancelar — registro não encontrado ou sem permissão.')
+      showConfirm.value = false
       return
     }
     toast.success('Agendamento cancelado')
+    showConfirm.value = false
     emit('confirm', data)
     emit('update:show', false)
   } catch (e: any) {
     toast.error('Erro ao cancelar agendamento: ' + (e?.message || e))
+    showConfirm.value = false
   }
 }
 
