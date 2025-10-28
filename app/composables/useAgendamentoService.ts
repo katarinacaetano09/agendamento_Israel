@@ -14,8 +14,14 @@ export function useAgendamentoService() {
       } as any)
       .eq('id', id)
       .select()
-      .single()
-    return { data: data as unknown as Agendamento, error }
+      .maybeSingle()
+
+    // Em alguns casos o Supabase pode retornar um array inesperado. Normalizamos para o primeiro elemento se necessário.
+    let normalized: any = null
+    if (Array.isArray(data)) normalized = data[0] ?? null
+    else normalized = data
+
+    return { data: normalized as unknown as Agendamento, error }
   }
 
   // Marca como cancelado e registra data do cancelamento
@@ -27,8 +33,13 @@ export function useAgendamentoService() {
       .update({ cancelado: true, cancelado_as: now } as any)
       .eq('id', id)
       .select()
-      .single()
-    return { data: data as unknown as Agendamento, error }
+      .maybeSingle()
+
+    let normalized: any = null
+    if (Array.isArray(data)) normalized = data[0] ?? null
+    else normalized = data
+
+    return { data: normalized as unknown as Agendamento, error }
   }
 
   return {
