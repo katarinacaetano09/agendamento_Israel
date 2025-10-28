@@ -45,8 +45,15 @@ export const useAgendamentoStore = defineStore('agendamento', () => {
       selectedProfissional.value = null
       return
     }
-    // professional object expected to have profissional_id
-    selectedProfissionalId.value = prof.profissional_id || null
+    // support several possible shapes: { profissional_id }, { id }, or a plain number
+    if (typeof prof === 'number' || typeof prof === 'string') {
+      const idNum = Number(prof)
+      selectedProfissionalId.value = isNaN(idNum) ? null : idNum
+      selectedProfissional.value = { profissional_id: selectedProfissionalId.value }
+      return
+    }
+    const id = prof.profissional_id ?? prof.id ?? prof.profissionalId ?? null
+    selectedProfissionalId.value = id != null ? Number(id) : null
     selectedProfissional.value = prof
   }
 
