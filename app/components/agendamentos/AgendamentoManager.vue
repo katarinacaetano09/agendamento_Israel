@@ -1,5 +1,3 @@
-
-
 <template>
   <div class="agendamento-manager-container w-full mt-4 flex flex-col rounded-xl overflow-hidden" style="height: 100%; min-height: 400px;">
     <div
@@ -29,6 +27,7 @@
           :data="dia"
           :slots="semanaSlots[ dia.toISOString().slice(0,10) ] || []"
           class="flex-1 min-w-0"
+          @edit="onEditAgendamento"
         />
       </div>
     </div>
@@ -44,6 +43,13 @@
     @confirm="onModalConfirm"
     @cancel="onModalCancel"
   />
+  <EditAgendamentoModal
+    :show="showEditModal"
+    :agendamento="editAgendamento"
+    @update:show="onEditModalUpdateShow"
+    @confirm="onEditModalConfirm"
+    @cancel="onEditModalCancel"
+  />
 </template>
 
 <script lang="ts">
@@ -54,6 +60,7 @@ import ReguaHorarios from './ReguaHorarios.vue'
 import ItemAgendamento from './ItemAgendamento.vue'
 import BaseButton from '../BaseButton.vue'
 import NewAgendamentoModal from './NewAgendamentoModal.vue'
+import EditAgendamentoModal from './EditAgendamentoModal.vue'
 
 import { useAgendamentoStore } from '~/stores/agendamento'
 import { storeToRefs } from 'pinia'
@@ -62,7 +69,7 @@ import { useAgendamentos } from '~/composables/useAgendamentos'
 
 export default {
   name: 'AgendamentoManager',
-  components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, ReguaHorarios, ItemAgendamento, BaseButton, NewAgendamentoModal },
+  components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, ReguaHorarios, ItemAgendamento, BaseButton, NewAgendamentoModal, EditAgendamentoModal },
   setup() {
     const agendamentoStore = useAgendamentoStore()
     const { dataSemana } = storeToRefs(agendamentoStore)
@@ -72,6 +79,8 @@ export default {
   const semanaSlots = ref<Record<string, Array<any>>>({})
   const showNewModal = ref(false)
   const modalProfissional = ref<any>(null)
+  const showEditModal = ref(false)
+  const editAgendamento = ref<any>(null)
 
     function formatDate(d: Date) {
       return d.toISOString().slice(0, 10)
@@ -205,6 +214,22 @@ export default {
       showNewModal.value = false
     }
 
+    function onEditAgendamento(agendamento: any) {
+      editAgendamento.value = agendamento
+      showEditModal.value = true
+    }
+    function onEditModalUpdateShow(val: boolean) {
+      showEditModal.value = val
+    }
+    function onEditModalConfirm(payload: any) {
+      showEditModal.value = false
+      // reload semana se necessário
+      loadSemana()
+    }
+    function onEditModalCancel() {
+      showEditModal.value = false
+    }
+
     return {
       diasSemana: dataSemana,
       semanaSlots,
@@ -212,9 +237,15 @@ export default {
       showNewModal,
       modalProfissional,
       openNovo,
+      showEditModal,
+      editAgendamento,
       onModalUpdateShow,
       onModalConfirm,
-      onModalCancel
+      onModalCancel,
+      onEditAgendamento,
+      onEditModalUpdateShow,
+      onEditModalConfirm,
+      onEditModalCancel
     }
   },
   methods: {

@@ -2,6 +2,8 @@
   <div
     class="absolute left-1 right-1 rounded px-2 py-1 shadow-md text-xs flex flex-col border"
     :style="{ ...slotStyle, backgroundColor: color ?? '#e5e7eb', color: textColor }"
+    @click="onClick"
+    style="cursor: pointer;"
   >
     <span class="font-bold w-full block">{{ titulo }}</span>
     <span class="w-full block">{{ descricao }}</span>
@@ -18,10 +20,20 @@ const props = defineProps<{
   fim: Date,
   titulo: string,
   descricao: string,
-  color?: string | null
+  color?: string | null,
+  agendamento?: any
 }>()
+const emit = defineEmits(['edit'])
 
- 
+function onClick() {
+  emit('edit', props.agendamento ?? {
+    inicio: props.inicio,
+    fim: props.fim,
+    titulo: props.titulo,
+    descricao: props.descricao,
+    color: props.color
+  })
+}
 
 function formatHora(date: Date) {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })

@@ -9,17 +9,17 @@
     <div class="p-4 grid grid-cols-1 gap-4 max-w-md w-full mx-auto max-h-[65vh] overflow-y-auto">
       <div>
         <label class="block mb-1 text-sm font-medium text-neutral-700">Título</label>
-        <BaseInput v-model="titulo" placeholder="Título do agendamento" />
+        <BaseInput v-model="titulo" placeholder="Título do agendamento" :disabled="isDisabled" />
       </div>
 
       <div>
         <label class="block mb-1 text-sm font-medium text-neutral-700">Cor</label>
-        <ColorPicker v-model="selectedColor" />
+        <ColorPicker v-model="selectedColor" :disabled="isDisabled" />
       </div>
 
       <div>
         <label class="block mb-1 text-sm font-medium text-neutral-700">Descrição</label>
-        <textarea v-model="descricao" class="block w-full rounded-md border-neutral-300 px-4 py-2 text-sm" rows="4" placeholder="Descrição (opcional)"></textarea>
+        <textarea v-model="descricao" class="block w-full rounded-md border-neutral-300 px-4 py-2 text-sm" rows="4" placeholder="Descrição (opcional)" :disabled="isDisabled"></textarea>
       </div>
 
       <div v-if="agendamento?.data" class="text-sm text-neutral-500">
@@ -32,10 +32,10 @@
       <div class="flex justify-between items-center w-full">
         <div class="flex gap-2">
           <BaseButton variant="secondary" @click="onCancel">Fechar</BaseButton>
-          <BaseButton variant="danger" @click="onCancelarAgendamento">Cancelar agendamento</BaseButton>
+          <BaseButton variant="danger" @click="onCancelarAgendamento" :disabled="isDisabled">Cancelar agendamento</BaseButton>
         </div>
         <div>
-          <BaseButton variant="primary" :disabled="!canSave" @click="onSave">Salvar</BaseButton>
+          <BaseButton variant="primary" :disabled="!canSave || isDisabled" @click="onSave">Salvar</BaseButton>
         </div>
       </div>
     </template>
@@ -65,6 +65,7 @@ watch(() => props.agendamento, (v) => {
 })
 
 const canSave = computed(() => titulo.value.trim().length > 0)
+const isDisabled = computed(() => !!props.agendamento?.cancelado)
 
 async function onSave() {
   if (!props.agendamento) return
