@@ -72,10 +72,11 @@ export default {
   components: { AgendamentoSemanaControl, ProfissionalInfo, ListaDias, ReguaHorarios, ItemAgendamento, BaseButton, NewAgendamentoModal, EditAgendamentoModal },
   setup() {
   const agendamentoStore = useAgendamentoStore() as any
-  // Avoid storeToRefs typing issues in TS: access store properties directly
-  const dataSemana = (agendamentoStore as any).dataSemana
-  const selectedProfissionalId = (agendamentoStore as any).selectedProfissionalId
-  const selectedProfissional = (agendamentoStore as any).selectedProfissional
+  // Use storeToRefs to keep refs (.value) behavior — cast store to any to avoid TS type issues
+  const _refs: any = storeToRefs(agendamentoStore as any)
+  const dataSemana: any = _refs.dataSemana
+  const selectedProfissionalId: any = _refs.selectedProfissionalId
+  const selectedProfissional: any = _refs.selectedProfissional
   const { fetchAgendamentosPorProfissionalWeek, invalidateCache } = useAgendamentos()
 
   const semanaSlots = ref<Record<string, Array<any>>>({})
