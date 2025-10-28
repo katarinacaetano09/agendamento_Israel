@@ -13,3 +13,7 @@ declare module '~/stores/user' {
 declare module '~/composables/useProfissionais' {
   export function useProfissionais(...args: any[]): any
 }
+
+declare module '~/composables/useAgendamentoService' {
+  export function useAgendamentoService(...args: any[]): any
+}
