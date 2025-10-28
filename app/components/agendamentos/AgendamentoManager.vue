@@ -221,10 +221,28 @@ export default {
     function onEditModalUpdateShow(val: boolean) {
       showEditModal.value = val
     }
-    function onEditModalConfirm(payload: any) {
+  async function onEditModalConfirm(payload: any) {
       showEditModal.value = false
       // reload semana se necessário
-      loadSemana()
+        // Invalidate cache for this professional and week range so loadSemana fetches fresh data
+        try {
+          const profId = Number(payload?.profissional_id ?? payload?.profissional?.id ?? selectedProfissionalId.value)
+          if (profId) {
+            if (dataSemana.value && dataSemana.value.length > 0 && dataSemana.value[0] && dataSemana.value[dataSemana.value.length - 1]) {
+              const start = formatDate(dataSemana.value[0] as Date)
+              const end = formatDate(dataSemana.value[dataSemana.value.length - 1] as Date)
+              invalidateCache(profId, start, end)
+            } else {
+              invalidateCache(profId)
+            }
+          } else {
+            invalidateCache()
+          }
+        } catch (e) {
+          console.warn('Erro ao invalidar cache após editar agendamento', e)
+        }
+        // reload semana com dados atualizados
+        await loadSemana()
     }
     function onEditModalCancel() {
       showEditModal.value = false
