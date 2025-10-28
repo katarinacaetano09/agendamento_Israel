@@ -8,12 +8,21 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "~~/*": ["./*"]
-    }
+      "~/*": ["./app/*"],
+      "~~/*": ["./*"],
+      "#app": [".nuxt/types/app"],
+      "#build": [".nuxt/types"]
+    },
+    
   },
   "include": [
-    "types/supabase.d.ts",
+    "types/**/*.d.ts",
+    "types/*.d.ts",
+    "app/**/*",
+    "shared/**/*",
+    "server/**/*",
+    "app/**/*.vue",
     "app/**/*.ts",
-    "shared/**/*.ts"
-  ],
+    "app/**/*.js"
+  ]
 }
