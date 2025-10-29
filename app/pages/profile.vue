@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-3xl mx-auto p-6">
+  <div class="max-w-3xl mx-auto p-6 bg-gray-50 min-h-screen">
     <h1 class="text-2xl font-semibold mb-4">Meu Perfil</h1>
 
-    <div class="bg-neutral-800 p-6 rounded-lg space-y-4">
+  <div class="bg-white text-neutral-900 p-6 rounded-lg space-y-4 shadow">
       <BaseInput label="Nome" v-model="nome" placeholder="Seu nome" />
       <BaseInput label="Email" v-model="email" placeholder="Seu email" disabled />
 
