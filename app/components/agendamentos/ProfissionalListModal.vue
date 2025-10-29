@@ -47,7 +47,12 @@ function onUpdateShow(val: boolean) {
 }
 
 function select(p: any) {
-  emit('select', p)
+  // normalize emitted object to always include profissional_id when possible
+  const normalized = {
+    ...p,
+    profissional_id: p?.profissional_id ?? p?.id ?? p?.profissionalId ?? null
+  }
+  emit('select', normalized)
   emit('update:show', false)
 }
 

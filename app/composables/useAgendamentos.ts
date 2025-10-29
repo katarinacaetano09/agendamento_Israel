@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { Agendamento, AgendamentoInsert } from '../../shared/types/Agendamento'
+import type { Agendamento, AgendamentoInsert, AgendamentoReport } from '../../shared/types/Agendamento'
 
 export function useAgendamentos() {
   const agendamentos = ref<Agendamento[] | null>(null)
@@ -109,6 +109,58 @@ export function useAgendamentos() {
     }
   }
 
+  // ---- Relatórios / histórico de agendamentos (view: ag_view_agendamentos) ----
+  const relatorios = ref<AgendamentoReport[] | null>(null)
+  const relLoading = ref(false)
+  const relError = ref<string | null>(null)
+
+  type RelatorioFilters = {
+    startDate?: string
+    endDate?: string
+    profissionalId?: number
+    clienteId?: number
+    cancelado?: boolean
+  }
+
+  async function fetchRelatorios(filters: RelatorioFilters = {}) {
+    relLoading.value = true
+    relError.value = null
+    try {
+      const supabase = useSupabaseClient()
+      let query: any = supabase.from('ag_view_agendamentos').select('*')
+
+      if (filters.profissionalId != null) {
+        query = query.eq('profissional_id', filters.profissionalId)
+      }
+      if (filters.clienteId != null) {
+        query = query.eq('cliente_id', filters.clienteId)
+      }
+      if (filters.startDate) {
+        query = query.gte('data', filters.startDate)
+      }
+      if (filters.endDate) {
+        query = query.lte('data', filters.endDate)
+      }
+      if (filters.cancelado != null) {
+        query = query.eq('cancelado', filters.cancelado)
+      }
+
+      // order by date + start time
+      query = query.order('data', { ascending: true }).order('hora_inicio', { ascending: true })
+
+      const { data: d, error: err } = await query
+      if (err) throw err
+      relatorios.value = d as AgendamentoReport[]
+      return relatorios.value
+    } catch (err: any) {
+      relError.value = err.message || 'Erro ao buscar relatórios de agendamentos'
+      relatorios.value = null
+      return null
+    } finally {
+      relLoading.value = false
+    }
+  }
+
   return {
     agendamentos,
     loading,
@@ -118,5 +170,11 @@ export function useAgendamentos() {
     fetchAgendamentosPorProfissionalWeek,
     invalidateCache,
     insertAgendamento
+    ,
+    // relatórios
+    relatorios,
+    relLoading,
+    relError,
+    fetchRelatorios
   }
 }
