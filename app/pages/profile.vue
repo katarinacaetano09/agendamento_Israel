@@ -4,7 +4,7 @@
 
   <div class="bg-white text-neutral-900 p-6 rounded-lg space-y-4 shadow">
   <BaseInput label="Nome" v-model="nome" placeholder="Seu nome" />
-  <BaseInput label="Email" v-model="email" placeholder="Seu email" />
+  <BaseInput label="Email" :modelValue="email" @update:modelValue="setEmail" placeholder="Seu email" />
 
       <div class="pt-4">
         <h2 class="text-lg font-medium mb-2">Alterar senha</h2>
@@ -49,4 +49,8 @@ watch(() => userStore.profile, (p) => {
 watch(() => user.value, (u) => {
   email.value = u?.email ?? ''
 })
+
+function setEmail(v: string) {
+  email.value = v
+}
 </script>
