@@ -123,34 +123,44 @@ export function useAgendamentos() {
   }
 
   async function fetchRelatorios(filters: RelatorioFilters = {}) {
+    // Use RPC (security-definer) which returns the complete agendamentos view results
     relLoading.value = true
     relError.value = null
     try {
       const supabase = useSupabaseClient()
-      let query: any = supabase.from('ag_view_agendamentos').select('*')
+      const { data: d, error: err } = await supabase.rpc('ag_get_agendamentos_completo')
+      if (err) throw err
+      let rows = (d as unknown) as AgendamentoReport[]
 
+      // apply optional client-side filters if provided (RPC returns full dataset)
       if (filters.profissionalId != null) {
-        query = query.eq('profissional_id', filters.profissionalId)
+        rows = rows.filter(r => r.profissional_id === filters.profissionalId)
       }
       if (filters.clienteId != null) {
-        query = query.eq('cliente_id', filters.clienteId)
+        rows = rows.filter(r => r.cliente_id === filters.clienteId)
       }
       if (filters.startDate) {
-        query = query.gte('data', filters.startDate)
+        rows = rows.filter(r => (r.data ?? '') >= filters.startDate!)
       }
       if (filters.endDate) {
-        query = query.lte('data', filters.endDate)
+        rows = rows.filter(r => (r.data ?? '') <= filters.endDate!)
       }
       if (filters.cancelado != null) {
-        query = query.eq('cancelado', filters.cancelado)
+        rows = rows.filter(r => Boolean(r.cancelado) === Boolean(filters.cancelado))
       }
 
-      // order by date + start time
-      query = query.order('data', { ascending: true }).order('hora_inicio', { ascending: true })
+      // sort by date then start time — newest first (mais novo primeiro)
+      rows.sort((a, b) => {
+        const da = a.data ?? ''
+        const db = b.data ?? ''
+        if (da < db) return 1
+        if (da > db) return -1
+        const ta = (a.hora_inicio ?? '')
+        const tb = (b.hora_inicio ?? '')
+        return ta < tb ? 1 : ta > tb ? -1 : 0
+      })
 
-      const { data: d, error: err } = await query
-      if (err) throw err
-      relatorios.value = d as AgendamentoReport[]
+      relatorios.value = rows
       return relatorios.value
     } catch (err: any) {
       relError.value = err.message || 'Erro ao buscar relatórios de agendamentos'
