@@ -3,12 +3,12 @@
     <h1 class="text-2xl font-semibold mb-4">Meu Perfil</h1>
 
   <div class="bg-white text-neutral-900 p-6 rounded-lg space-y-4 shadow">
-      <BaseInput label="Nome" v-model="nome" placeholder="Seu nome" />
-      <BaseInput label="Email" v-model="email" placeholder="Seu email" disabled />
+  <BaseInput label="Nome" v-model="nome" placeholder="Seu nome" />
+  <BaseInput label="Email" v-model="email" placeholder="Seu email" />
 
       <div class="pt-4">
         <h2 class="text-lg font-medium mb-2">Alterar senha</h2>
-        <ChargePassword v-model:senha="senha" v-model:novaSenha="novaSenha" />
+  <ChargePassword v-model:novaSenha="novaSenha" v-model:confirmNovaSenha="confirmNovaSenha" />
       </div>
 
       <div class="pt-4">
@@ -37,8 +37,8 @@ const nome = ref(userStore.profile?.nome ?? '')
 const email = ref(user.value?.email ?? '')
 
 // senha fields para o componente (ainda sem ação)
-const senha = ref('')
 const novaSenha = ref('')
+const confirmNovaSenha = ref('')
 
 // sincroniza quando o profile é carregado/atualizado
 watch(() => userStore.profile, (p) => {

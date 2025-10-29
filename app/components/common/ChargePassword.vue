@@ -1,17 +1,17 @@
 <template>
   <div class="space-y-3">
     <BaseInput
-      label="Senha atual"
-      type="password"
-      v-model="senhaLocal"
-      placeholder="Digite sua senha atual"
-    />
-
-    <BaseInput
       label="Nova senha"
       type="password"
       v-model="novaSenhaLocal"
       placeholder="Digite a nova senha"
+    />
+
+    <BaseInput
+      label="Confirme nova senha"
+      type="password"
+      v-model="confirmNovaSenhaLocal"
+      placeholder="Repita a nova senha"
     />
   </div>
 </template>
@@ -21,23 +21,23 @@ import { ref, watch } from 'vue'
 import BaseInput from '~/components/BaseInput.vue'
 
 const props = withDefaults(defineProps<{
-  senha?: string | null
   novaSenha?: string | null
+  confirmNovaSenha?: string | null
 }>(), {
-  senha: null,
-  novaSenha: null
+  novaSenha: null,
+  confirmNovaSenha: null
 })
 
-// define emits for v-model bindings
-const emit = defineEmits(["update:senha", "update:novaSenha"])
+// emits for v-model bindings
+const emit = defineEmits(["update:novaSenha", "update:confirmNovaSenha"])
 
-const senhaLocal = ref(props.senha ?? '')
 const novaSenhaLocal = ref(props.novaSenha ?? '')
+const confirmNovaSenhaLocal = ref(props.confirmNovaSenha ?? '')
 
-watch(senhaLocal, (v) => emit('update:senha', v))
 watch(novaSenhaLocal, (v) => emit('update:novaSenha', v))
+watch(confirmNovaSenhaLocal, (v) => emit('update:confirmNovaSenha', v))
 
 // keep props in sync when parent updates
-watch(() => props.senha, (v) => { if (v !== senhaLocal.value) senhaLocal.value = v ?? '' })
 watch(() => props.novaSenha, (v) => { if (v !== novaSenhaLocal.value) novaSenhaLocal.value = v ?? '' })
+watch(() => props.confirmNovaSenha, (v) => { if (v !== confirmNovaSenhaLocal.value) confirmNovaSenhaLocal.value = v ?? '' })
 </script>
