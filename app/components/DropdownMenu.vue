@@ -30,6 +30,7 @@
       <ul class="py-2">
         <li>
           <button 
+            @click="handleProfile"
             class="flex items-center space-x-3 w-full px-4 py-2 hover:bg-neutral-600 transition-colors text-left"
           >
             <UserCircleIcon class="w-4 h-4" />
@@ -60,6 +61,7 @@ import {
   ArrowLeftOnRectangleIcon 
 } from '@heroicons/vue/24/outline';
 import { useAuth } from '../composables/useAuth';
+import { useRouter } from 'vue-router'
 
 // Props
 interface Props {
@@ -75,6 +77,7 @@ const isOpen = ref(false);
 
 // Composable de autenticação
 const { logout } = useAuth();
+const router = useRouter();
 
 // Função para alternar o dropdown
 const toggleDropdown = () => {
@@ -86,6 +89,12 @@ const handleLogout = async () => {
   isOpen.value = false; // Fechar o dropdown
   await logout();
 };
+
+// Ir para a página de perfil
+const handleProfile = () => {
+  isOpen.value = false
+  router.push('/profile')
+}
 
 // Fechar dropdown quando clicar fora (opcional - pode ser implementado depois)
 // onMounted(() => {
