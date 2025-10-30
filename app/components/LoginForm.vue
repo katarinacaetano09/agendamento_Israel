@@ -68,6 +68,10 @@
           :disabled="loading"
         />
       </div>
+
+      <div class="text-right mt-2">
+        <NuxtLink to="/recuperar-senha" class="text-sm font-medium text-primary hover:text-primary-600">Esqueci a senha</NuxtLink>
+      </div>
       
       <div class="text-center text-sm text-neutral-600 mt-6">
         Ainda não tem uma conta?
