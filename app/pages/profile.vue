@@ -12,8 +12,8 @@
       </div>
 
       <div class="pt-4">
-        <!-- Ainda sem ação; o botão é apenas visual por enquanto -->
-        <BaseButton class="mt-2">Salvar alterações</BaseButton>
+  <!-- Botão salva apenas o nome (a alteração de senha é independente) -->
+  <BaseButton class="mt-2" :disabled="saving" @click="saveChanges">Salvar alterações</BaseButton>
       </div>
     </div>
   </div>
@@ -39,6 +39,9 @@ const email = ref(user.value?.email ?? '')
 // senha fields para o componente (ainda sem ação)
 const novaSenha = ref('')
 const confirmNovaSenha = ref('')
+const saving = ref(false)
+
+const { updateName } = useAuth()
 
 // sincroniza quando o profile é carregado/atualizado
 watch(() => userStore.profile, (p) => {
@@ -52,5 +55,24 @@ watch(() => user.value, (u) => {
 
 function setEmail(v: string) {
   email.value = v
+}
+
+async function saveChanges() {
+  if (!nome.value || nome.value.trim().length === 0) {
+    // simple client validation
+    const toast = (await import('vue-toastification')).useToast()
+    toast.error('Nome não pode ficar vazio')
+    return
+  }
+  try {
+    saving.value = true
+    const ok = await updateName(nome.value.trim())
+    // ok already shows toast via composable; we can do extra handling if needed
+    if (ok) {
+      // nothing else for now
+    }
+  } finally {
+    saving.value = false
+  }
 }
 </script>

@@ -115,6 +115,46 @@ export const useAuth = () => {
   }
 
   /**
+   * Atualiza o nome do usuário usando uma RPC criada no backend
+   * RPC: ag_update_infos_user(new_name text)
+   * Retorna boolean e mensagem via toast
+   */
+  const updateName = async (newName: string) => {
+    try {
+      loading.value = true
+      error.value = null
+      const { data, error: rpcError } = await supabase.rpc('ag_update_infos_user', { new_name: newName })
+      if (rpcError) {
+        error.value = rpcError.message
+        toast.error('Falha ao atualizar nome: ' + (rpcError.message || ''))
+        return false
+      }
+
+      // expected return { success: boolean, message: string }
+      if (data && (data as any).success) {
+        toast.success((data as any).message || 'Nome atualizado com sucesso')
+        // refresh profile in user store
+        try {
+          const userStore = useUserStore()
+          await userStore.fetchProfile()
+        } catch (e) {
+          // non-blocking
+        }
+        return true
+      }
+
+      toast.error(((data as any)?.message) || 'Falha ao atualizar nome')
+      return false
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao atualizar nome'
+      toast.error('Erro ao atualizar nome. Tente novamente.')
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * Logout do usuário
    */
   const logout = async () => {
@@ -157,6 +197,7 @@ export const useAuth = () => {
     loginWithOtp,
     logout,
     updatePassword,
+    updateName,
     isAuthenticated
   };
 };
