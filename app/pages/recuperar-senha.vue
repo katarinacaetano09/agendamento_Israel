@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import ChargePassword from '~/components/common/ChargePassword.vue'
 import BaseButton from '~/components/BaseButton.vue'
-import { useRouter } from '#app'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 const router = useRouter()
