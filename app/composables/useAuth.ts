@@ -3,6 +3,13 @@ import { useRouter } from 'nuxt/app';
 import { useToast } from 'vue-toastification';
 import { useUserStore } from '~/stores/user';
 
+// Some Nuxt/Supabase composables are auto-imported at runtime but
+// TypeScript may not know their types in this environment. Declare
+// the `useSupabaseUser` composable to avoid the TS2304 error during
+// type-checking. This is a small local workaround; no behavioral
+// change at runtime.
+declare function useSupabaseUser(): any
+
 export const useAuth = () => {
   const supabase = useSupabaseClient();
   const user = useSupabaseUser();
