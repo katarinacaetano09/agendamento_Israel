@@ -12,4 +12,7 @@
 
 <script setup lang="ts">
 // Usa o layout padrão (app.vue já envolve as páginas com `default-layout`)
+// Definir middleware para checar permissão de admin
+declare function definePageMeta(meta: any): void
+definePageMeta({ middleware: 'admin' })
 </script>

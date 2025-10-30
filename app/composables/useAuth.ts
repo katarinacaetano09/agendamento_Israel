@@ -155,6 +155,30 @@ export const useAuth = () => {
   }
 
   /**
+   * Verifica via RPC se o usuário atual é admin
+   * RPC: ag_isadmin() -> { isadmin: boolean }
+   */
+  const checkIsAdmin = async () => {
+    try {
+      loading.value = true
+      error.value = null
+      const { data, error: rpcError } = await supabase.rpc('ag_isadmin')
+      if (rpcError) {
+        console.error('ag_isadmin rpc error', rpcError)
+        return false
+      }
+      // data may be an object or array depending on RPC; normalize
+      const isadmin = (data && (data as any).isadmin) || (Array.isArray(data) && data[0] && data[0].isadmin)
+      return !!isadmin
+    } catch (err: any) {
+      console.error('checkIsAdmin error', err)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * Logout do usuário
    */
   const logout = async () => {
@@ -198,6 +222,7 @@ export const useAuth = () => {
     logout,
     updatePassword,
     updateName,
+    checkIsAdmin,
     isAuthenticated
   };
 };

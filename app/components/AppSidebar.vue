@@ -123,7 +123,7 @@
             </div>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="isAdmin">
           <NuxtLink 
             to="/admin" 
             class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
@@ -156,7 +156,7 @@
 
 <script setup lang="ts">
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { 
   HomeIcon, 
   CalendarDaysIcon,
@@ -168,6 +168,7 @@ import {
   ChevronRightIcon
 } from '@heroicons/vue/24/outline';
 import { useAuth } from '../composables/useAuth';
+import { useUserStore } from '~/stores/user'
 import DropdownMenu from './DropdownMenu.vue';
 
 // Estado de colapso da sidebar
@@ -180,4 +181,7 @@ const toggleSidebar = () => {
 
 // Usar composable de autenticação (mantido para futuras funcionalidades)
 const { user, logout } = useAuth();
+// store do perfil para checar a role
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.profile?.role === 'admin')
 </script>
