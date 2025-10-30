@@ -48,7 +48,7 @@
         </div>
         
         <div class="text-sm">
-          <NuxtLink to="/recuperar-senha" class="font-medium text-primary hover:text-primary-600">Esqueci a senha</NuxtLink>
+          <NuxtLink to="/esqueci-senha" class="font-medium text-primary hover:text-primary-600">Esqueci a senha</NuxtLink>
         </div>
       </div>
       
