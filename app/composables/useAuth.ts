@@ -84,6 +84,30 @@ export const useAuth = () => {
   };
 
   /**
+   * Atualiza a senha do usuário autenticado via Supabase
+   */
+  const updatePassword = async (newPassword: string) => {
+    try {
+      loading.value = true
+      error.value = null
+      const { data, error: pwdError } = await supabase.auth.updateUser({ password: newPassword })
+      if (pwdError) {
+        error.value = pwdError.message
+        toast.error('Falha ao alterar a senha. Tente novamente.')
+        return false
+      }
+      toast.success('Senha alterada com sucesso!')
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Erro ao alterar a senha'
+      toast.error('Erro ao alterar a senha. Tente novamente.')
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
    * Logout do usuário
    */
   const logout = async () => {
@@ -125,6 +149,7 @@ export const useAuth = () => {
     login,
     loginWithOtp,
     logout,
+    updatePassword,
     isAuthenticated
   };
 };
