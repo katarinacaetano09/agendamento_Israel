@@ -16,7 +16,7 @@ export default defineNuxtConfig({
     // keep redirect on for protected pages, but exclude our public recovery page
     redirect: true,
     redirectOptions: {
-      exclude: ['/esqueci-senha']
+      exclude: ['/esqueci-senha', '/recuperar-senha']
     }
   }
 })
