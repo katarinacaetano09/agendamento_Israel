@@ -123,6 +123,27 @@
             </div>
           </NuxtLink>
         </li>
+        <li>
+          <NuxtLink 
+            to="/admin" 
+            class="group flex items-center p-3 rounded-lg hover:bg-neutral-700 transition-all duration-200 relative"
+            :class="[
+              { 'bg-neutral-700': $route.path === '/admin' },
+              isCollapsed ? 'justify-center' : ''
+            ]"
+          >
+            <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06A2 2 0 014.27 17.9l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82L4.21 4.27A2 2 0 017.04 1.44l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V1a2 2 0 014 0v.09c.12.64.6 1.17 1.25 1.51h.01a1.65 1.65 0 001.82-.33l.06-.06A2 2 0 0119.73 4.27l-.06.06a1.65 1.65 0 00-.33 1.82V7c.64.12 1.17.6 1.51 1.25v.01c.12.64-.12 1.35-.66 1.75z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span v-if="!isCollapsed" class="ml-3 transition-all duration-300">Admin</span>
+
+            <div v-if="isCollapsed" 
+                 class="absolute left-full ml-3 px-2 py-1 bg-neutral-900 text-white text-sm rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+              Admin
+            </div>
+          </NuxtLink>
+        </li>
       </ul>
     </nav>
 
