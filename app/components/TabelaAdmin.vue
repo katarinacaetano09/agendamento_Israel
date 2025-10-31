@@ -39,6 +39,7 @@
         <BaseInput v-model="novoEmail" label="Email" type="email" placeholder="email@exemplo.com" />
         <BaseInput v-model="novaSenha" label="Senha" type="password" placeholder="Senha" />
       </div>
+      <!-- Rodapé padrão do BaseModal: Cancelar e Confirmar -->
     </BaseModal>
   </div>
 </template>
