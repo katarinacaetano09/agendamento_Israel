@@ -38,6 +38,14 @@
         <BaseInput v-model="novoNome" label="Nome" placeholder="Nome completo" />
         <BaseInput v-model="novoEmail" label="Email" type="email" placeholder="email@exemplo.com" />
         <BaseInput v-model="novaSenha" label="Senha" type="password" placeholder="Senha" />
+        <div>
+          <label class="block text-sm font-medium mb-1" for="tipoUsuario">Tipo de Usuário</label>
+          <select id="tipoUsuario" v-model="tipoUsuario" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-300">
+            <option value="">Selecione o tipo de usuário</option>
+            <option value="admin">Administrador</option>
+            <option value="usuario">Usuário</option>
+          </select>
+        </div>
       </div>
       <!-- Rodapé padrão do BaseModal: Cancelar e Confirmar -->
     </BaseModal>
@@ -54,16 +62,19 @@ import BaseInput from '~/components/BaseInput.vue'
 const { simpleProfiles, fetchSimpleProfiles } = useProfissionais()
 const loadingLocal = ref(false)
 
+
 // modal state and form
 const showModal = ref(false)
 const novoNome = ref('')
 const novoEmail = ref('')
 const novaSenha = ref('')
+const tipoUsuario = ref('')
 
 function resetForm() {
   novoNome.value = ''
   novoEmail.value = ''
   novaSenha.value = ''
+  tipoUsuario.value = ''
 }
 
 function handleCancel() {
