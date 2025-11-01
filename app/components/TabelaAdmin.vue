@@ -15,6 +15,7 @@
             <th class="py-2">ID</th>
             <th class="py-2">Nome</th>
             <th class="py-2">Email</th>
+            <th class="py-2 w-16">Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -22,6 +23,17 @@
             <td class="py-2">{{ p.id }}</td>
             <td class="py-2">{{ p.nome }}</td>
             <td class="py-2">{{ p.email ?? '-' }}</td>
+            <td class="py-2">
+              <button 
+                @click="showDeleteConfirm(p)" 
+                class="text-red-600 hover:text-red-800 transition-colors p-1"
+                title="Deletar usuário"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -52,6 +64,26 @@
       </div>
       <!-- Rodapé padrão do BaseModal: Cancelar e Confirmar -->
     </BaseModal>
+
+    <!-- Modal de confirmação para deletar -->
+    <BaseModal :show="showDeleteModal" @cancel="handleCancelDelete" @confirm="handleConfirmDelete">
+      <template #header>
+        <h3 class="text-lg font-semibold">Confirmar Exclusão</h3>
+      </template>
+
+      <div class="px-2">
+        <div v-if="deletingUser" class="text-blue-600 text-sm mb-3">Deletando usuário...</div>
+        <div v-if="deleteUserError" class="text-red-600 text-sm mb-3">{{ deleteUserError }}</div>
+        
+        <p class="text-gray-700">
+          Tem certeza que deseja deletar o usuário <strong>{{ userToDelete?.nome }}</strong>?
+        </p>
+        <p class="text-sm text-gray-500 mt-2">
+          Esta ação não pode ser desfeita. O usuário será removido permanentemente do sistema.
+        </p>
+      </div>
+      <!-- Rodapé padrão do BaseModal: Cancelar e Confirmar -->
+    </BaseModal>
   </div>
 </template>
 
@@ -73,6 +105,12 @@ const novaSenha = ref('')
 const tipoUsuario = ref('')
 const creatingUser = ref(false)
 const createUserError = ref<string | null>(null)
+
+// delete user state
+const showDeleteModal = ref(false)
+const userToDelete = ref<any>(null)
+const deletingUser = ref(false)
+const deleteUserError = ref<string | null>(null)
 
 function resetForm() {
   novoNome.value = ''
@@ -119,6 +157,49 @@ async function handleConfirm() {
     createUserError.value = e?.data?.message || e?.message || 'Erro ao criar usuário'
   } finally {
     creatingUser.value = false
+  }
+}
+
+function showDeleteConfirm(user: any) {
+  userToDelete.value = user
+  showDeleteModal.value = true
+  deleteUserError.value = null
+}
+
+function handleCancelDelete() {
+  showDeleteModal.value = false
+  userToDelete.value = null
+  deleteUserError.value = null
+}
+
+async function handleConfirmDelete() {
+  if (!userToDelete.value?.user_id) {
+    deleteUserError.value = 'Usuário inválido'
+    return
+  }
+  
+  deletingUser.value = true
+  deleteUserError.value = null
+  
+  try {
+    const data = await $fetch('/api/delete_user', {
+      method: 'POST',
+      body: {
+        user_id: userToDelete.value.user_id
+      }
+    })
+    
+    if ((data as any)?.success) {
+      await fetchSimpleProfiles()
+      showDeleteModal.value = false
+      userToDelete.value = null
+    } else {
+      deleteUserError.value = (data as any)?.error || 'Erro ao deletar usuário'
+    }
+  } catch (e: any) {
+    deleteUserError.value = e?.data?.message || e?.message || 'Erro ao deletar usuário'
+  } finally {
+    deletingUser.value = false
   }
 }
 
