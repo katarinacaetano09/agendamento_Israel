@@ -87,8 +87,8 @@ import BaseInput from '../BaseInput.vue'
 import BaseButton from '../BaseButton.vue'
 import ClienteSelector from '../common/ClienteSelector.vue'
 import ColorPicker from '../common/ColorPicker.vue'
-import pkgToast from 'vue-toastification'
-const useToast = () => (pkgToast as any).useToast()
+import * as VueToastification from 'vue-toastification'
+const useToast = (VueToastification as any).useToast || (VueToastification as any).default?.useToast
 const router = useRouter()
 
 const props = defineProps<{ show: boolean; profissional?: any; datas?: Date[]; ocupados?: Record<string, any[]> }>()

@@ -49,8 +49,8 @@ import BaseModal from '../BaseModal.vue'
 import BaseInput from '../BaseInput.vue'
 import BaseButton from '../BaseButton.vue'
 import ColorPicker from '../common/ColorPicker.vue'
-import pkgToast from 'vue-toastification'
-const useToast = () => (pkgToast as any).useToast()
+import * as VueToastification from 'vue-toastification'
+const useToast = (VueToastification as any).useToast || (VueToastification as any).default?.useToast
 import ConfirmDeleteModal from '../ConfirmDeleteModal.vue'
 
 const props = defineProps<{ show: boolean; agendamento?: any }>()

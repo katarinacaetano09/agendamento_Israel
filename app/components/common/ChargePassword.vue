@@ -23,8 +23,8 @@
 import { ref, watch } from 'vue'
 import BaseInput from '~/components/BaseInput.vue'
 import BaseButton from '~/components/BaseButton.vue'
-import pkgToast from 'vue-toastification'
-const useToast = () => (pkgToast as any).useToast()
+import * as VueToastification from 'vue-toastification'
+const useToast = (VueToastification as any).useToast || (VueToastification as any).default?.useToast
 import { useAuth } from '~/composables/useAuth'
 
 const props = withDefaults(defineProps<{
