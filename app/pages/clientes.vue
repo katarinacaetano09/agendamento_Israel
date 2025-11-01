@@ -189,11 +189,11 @@ onMounted(() => {
   fetchClientes()
 })
 
-// Configuração da página
-useHead({
-  title: 'Clientes - Sistema de Agendamentos',
-  meta: [
-    { name: 'description', content: 'Gerenciar clientes do sistema de agendamentos' }
-  ]
-})
+// Configuração da página - useHead é auto-importado pelo Nuxt
+// useHead({
+//   title: 'Clientes - Sistema de Agendamentos',
+//   meta: [
+//     { name: 'description', content: 'Gerenciar clientes do sistema de agendamentos' }
+//   ]
+// })
 </script>

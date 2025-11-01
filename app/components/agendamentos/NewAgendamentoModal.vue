@@ -80,23 +80,22 @@
 </template>
 
 <script setup lang="ts">
-import { toRef, watch } from 'vue'
+import { toRef, watch, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import BaseModal from '../BaseModal.vue'
 import BaseInput from '../BaseInput.vue'
 import BaseButton from '../BaseButton.vue'
+import ClienteSelector from '../common/ClienteSelector.vue'
+import ColorPicker from '../common/ColorPicker.vue'
+import pkgToast from 'vue-toastification'
+const useToast = () => (pkgToast as any).useToast()
+const router = useRouter()
 
 const props = defineProps<{ show: boolean; profissional?: any; datas?: Date[]; ocupados?: Record<string, any[]> }>()
 const emit = defineEmits(['update:show', 'confirm', 'cancel'])
 
 // use a reactive ref that points to the parent's prop so v-if updates reliably
 const show = toRef(props, 'show')
-
-// Dropdown de cliente
-import ClienteSelector from '../common/ClienteSelector.vue'
-import { navigateTo } from '#app'
-import pkgToast from 'vue-toastification'
-const useToast = () => (pkgToast as any).useToast()
-import ColorPicker from '../common/ColorPicker.vue'
 
 // composable: extrai estados e helpers do formulário
 import { useNewAgendamentoForm } from '~/composables/useNewAgendamentoForm'
@@ -131,9 +130,13 @@ function onClienteSelect(c: any) {
   clienteTexto.value = c?.nome ?? ''
 }
 
-function abrirCadastroCliente() {
-  try { emit('update:show', false) } catch (e) {}
-  navigateTo('/clientes')
+async function abrirCadastroCliente() {
+  try { 
+    emit('update:show', false) 
+    await router.push('/clientes')
+  } catch (e) {
+    console.error('Erro ao navegar:', e)
+  }
 }
 
 async function onConfirm() {

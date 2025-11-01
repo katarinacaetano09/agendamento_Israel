@@ -313,11 +313,11 @@ const showToastNoClose = () => {
   });
 };
 
-// Configuração da página
-useHead({
-  title: 'Teste de Componentes - App de Agendamento',
-  meta: [
-    { name: 'description', content: 'Página de teste para avaliar os componentes UI do aplicativo de agendamento' }
-  ]
-})
+// Configuração da página - useHead é auto-importado pelo Nuxt
+// useHead({
+//   title: 'Teste de Componentes - App de Agendamento',
+//   meta: [
+//     { name: 'description', content: 'Página de teste para avaliar os componentes UI do aplicativo de agendamento' }
+//   ]
+// })
 </script>
