@@ -35,6 +35,9 @@
       </template>
 
       <div class="space-y-3 px-2">
+        <div v-if="creatingUser" class="text-blue-600 text-sm">Criando usuário...</div>
+        <div v-if="createUserError" class="text-red-600 text-sm">{{ createUserError }}</div>
+        
         <BaseInput v-model="novoNome" label="Nome" placeholder="Nome completo" />
         <BaseInput v-model="novoEmail" label="Email" type="email" placeholder="email@exemplo.com" />
         <BaseInput v-model="novaSenha" label="Senha" type="password" placeholder="Senha" />
@@ -62,19 +65,21 @@ import BaseInput from '~/components/BaseInput.vue'
 const { simpleProfiles, fetchSimpleProfiles } = useProfissionais()
 const loadingLocal = ref(false)
 
-
 // modal state and form
 const showModal = ref(false)
 const novoNome = ref('')
 const novoEmail = ref('')
 const novaSenha = ref('')
 const tipoUsuario = ref('')
+const creatingUser = ref(false)
+const createUserError = ref<string | null>(null)
 
 function resetForm() {
   novoNome.value = ''
   novoEmail.value = ''
   novaSenha.value = ''
   tipoUsuario.value = ''
+  createUserError.value = null
 }
 
 function handleCancel() {
@@ -82,10 +87,39 @@ function handleCancel() {
   resetForm()
 }
 
-function handleConfirm() {
-  // apenas fechar por enquanto — não implementar criação ainda
-  showModal.value = false
-  resetForm()
+async function handleConfirm() {
+  if (!novoNome.value || !novoEmail.value || !novaSenha.value || !tipoUsuario.value) {
+    createUserError.value = 'Preencha todos os campos'
+    return
+  }
+  
+  creatingUser.value = true
+  createUserError.value = null
+  
+  try {
+    const role = tipoUsuario.value === 'admin' ? 'admin' : 'user'
+    const data = await $fetch('/api/created_user', {
+      method: 'POST',
+      body: {
+        nome: novoNome.value,
+        email: novoEmail.value,
+        password: novaSenha.value,
+        role
+      }
+    })
+    
+    if ((data as any)?.success) {
+      await fetchSimpleProfiles()
+      showModal.value = false
+      resetForm()
+    } else {
+      createUserError.value = (data as any)?.error || 'Erro ao criar usuário'
+    }
+  } catch (e: any) {
+    createUserError.value = e?.data?.message || e?.message || 'Erro ao criar usuário'
+  } finally {
+    creatingUser.value = false
+  }
 }
 
 onMounted(async () => {
