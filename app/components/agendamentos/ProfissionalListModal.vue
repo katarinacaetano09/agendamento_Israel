@@ -2,6 +2,9 @@
   <BaseModal :show="show" @update:show="onUpdateShow" @cancel="onCancel">
     <template #header>
       <h3 class="text-lg font-semibold">Selecionar profissional</h3>
+      <button @click="onCancel" class="text-gray-400 hover:text-gray-600">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </template>
 
     <div class="px-2 py-2 max-h-80 overflow-auto">

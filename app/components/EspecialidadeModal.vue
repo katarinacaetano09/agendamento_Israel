@@ -10,6 +10,9 @@ declare global {
       <h3 class="text-lg font-semibold">
         {{ isEdit ? 'Editar Especialidade' : 'Nova Especialidade' }}
       </h3>
+      <button @click="onCancel" class="text-gray-400 hover:text-gray-600">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </template>
 
     <form @submit.prevent="onConfirm">

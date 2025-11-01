@@ -1,9 +1,10 @@
 <template>
   <BaseModal :show="show" @confirm="onConfirm" @cancel="onCancel">
     <template #header>
-      <div class="flex items-center justify-between w-full">
-        <h3 class="text-lg font-semibold">Novo agendamento</h3>
-      </div>
+      <h3 class="text-lg font-semibold">Novo agendamento</h3>
+      <button @click="onCancel" class="text-gray-400 hover:text-gray-600">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </template>
 
   <!-- constrain modal inner width and height so it fits smaller screens and the content can scroll -->

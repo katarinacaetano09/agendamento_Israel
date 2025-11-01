@@ -44,6 +44,9 @@
     <BaseModal :show="showModal" @cancel="handleCancel" @confirm="handleConfirm">
       <template #header>
         <h3 class="text-lg font-semibold">Novo Usuário</h3>
+        <button @click="handleCancel" class="text-gray-400 hover:text-gray-600">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </template>
 
       <div class="space-y-3 px-2">
@@ -69,6 +72,9 @@
     <BaseModal :show="showDeleteModal" @cancel="handleCancelDelete" @confirm="handleConfirmDelete">
       <template #header>
         <h3 class="text-lg font-semibold">Confirmar Exclusão</h3>
+        <button @click="handleCancelDelete" class="text-gray-400 hover:text-gray-600">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </template>
 
       <div class="px-2">

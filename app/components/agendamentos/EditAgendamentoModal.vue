@@ -1,9 +1,10 @@
 <template>
   <BaseModal :show="show" @confirm="onSave" @cancel="onCancel">
     <template #header>
-      <div class="flex items-center justify-between w-full">
-        <h3 class="text-lg font-semibold">Editar agendamento</h3>
-      </div>
+      <h3 class="text-lg font-semibold">Editar agendamento</h3>
+      <button @click="onCancel" class="text-gray-400 hover:text-gray-600">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </template>
 
     <div class="p-4 grid grid-cols-1 gap-4 max-w-md w-full mx-auto max-h-[65vh] overflow-y-auto">

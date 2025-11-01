@@ -3,6 +3,9 @@
   <BaseModal :show="show" @cancel="onCancel" @confirm="onConfirm">
     <template #header>
       <h3 class="text-lg font-semibold text-red-600">Excluir Especialidade</h3>
+      <button @click="onCancel" class="text-gray-400 hover:text-gray-600">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </template>
     <div class="py-4 text-center">
       <p class="text-lg font-medium">{{ nome }}</p>
