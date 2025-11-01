@@ -105,7 +105,8 @@ import ConfirmDeleteModal from '~/components/ConfirmDeleteModal.vue'
 import type { Profissional } from '~/../shared/types/Profissional'
 import type { SimpleProfile } from '~/../shared/types/SimpleProfile'
 import type { Especialidade } from '~/../shared/types/Especialidade'
-import { useToast } from 'vue-toastification'
+import pkgToast from 'vue-toastification'
+const useToast = () => (pkgToast as any).useToast()
 
 const { profissionais, fetchProfissionais, fetchSimpleProfiles, fetchEspecialidades, simpleProfiles, especialidades, addProfissional, editProfissional, deleteProfissional } = useProfissionais()
 // Handler para deletar profissional

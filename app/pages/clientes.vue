@@ -90,7 +90,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useToast } from 'vue-toastification'
+import pkgToast from 'vue-toastification'
+const useToast = () => (pkgToast as any).useToast()
 import { useClientes } from '../composables/useClientes'
 import { PlusIcon as HeroiconsPlus, PencilIcon as HeroiconsPencil, TrashIcon as HeroiconsTrash } from '@heroicons/vue/24/outline'
 import BaseButton from '~/components/BaseButton.vue'

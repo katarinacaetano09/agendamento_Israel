@@ -263,7 +263,8 @@ import {
 } from '@heroicons/vue/24/outline';
 
 // Importando o sistema de toast
-import { useToast } from 'vue-toastification';
+import pkgToast from 'vue-toastification';
+const useToast = () => (pkgToast as any).useToast();
 const toast = useToast();
 
 // Métodos para demonstração dos toasts

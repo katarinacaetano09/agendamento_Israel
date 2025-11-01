@@ -1,6 +1,10 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'nuxt/app';
-import { useToast } from 'vue-toastification';
+import pkgToast from 'vue-toastification';
+// vue-toastification is distributed as CommonJS on some setups (Vercel).
+// Use the default import and call `useToast()` from the package to avoid
+// named-export issues during SSR/build.
+const useToast = () => (pkgToast as any).useToast();
 import { useUserStore } from '~/stores/user';
 
 // Some Nuxt/Supabase composables are auto-imported at runtime but

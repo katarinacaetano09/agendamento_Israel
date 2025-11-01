@@ -94,7 +94,8 @@ const show = toRef(props, 'show')
 // Dropdown de cliente
 import ClienteSelector from '../common/ClienteSelector.vue'
 import { navigateTo } from '#app'
-import { useToast } from 'vue-toastification'
+import pkgToast from 'vue-toastification'
+const useToast = () => (pkgToast as any).useToast()
 import ColorPicker from '../common/ColorPicker.vue'
 
 // composable: extrai estados e helpers do formulário

@@ -25,7 +25,8 @@ import { ref } from 'vue'
 import BaseInput from '~/components/BaseInput.vue'
 import BaseButton from '~/components/BaseButton.vue'
 // useSupabaseClient is auto-imported by Nuxt
-import { useToast } from 'vue-toastification'
+import pkgToast from 'vue-toastification'
+const useToast = () => (pkgToast as any).useToast()
 
 const email = ref('')
 const sending = ref(false)

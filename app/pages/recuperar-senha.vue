@@ -15,7 +15,8 @@
 import ChargePassword from '~/components/common/ChargePassword.vue'
 import BaseButton from '~/components/BaseButton.vue'
 import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
+import pkgToast from 'vue-toastification'
+const useToast = () => (pkgToast as any).useToast()
 
 const router = useRouter()
 const toast = useToast()
